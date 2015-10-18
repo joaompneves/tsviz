@@ -1,19 +1,13 @@
 /// <reference path="typings/graphviz/graphviz.d.ts"/>
 
 import * as graphviz from "graphviz";
-import { Module, Class, Method, Visibility } from "./ts-elements";
-
-let id = 0;
+import { Element, Module, Class, Method, Visibility, QualifiedName } from "./ts-elements";
 
 export function buildUml(modules: Module[], outputFilename: string) {
 	let g: graphviz.Graph = graphviz.digraph("G");
-	
+
 	modules.forEach(module => {
-		let cluster = g.addCluster("module" + id++);
-		cluster.set("label", module.name);
-		cluster.set("style", "filled");
-		cluster.set("color", "lightgrey");
-		module.classes.forEach(childClass => buildClass(childClass, cluster));
+		buildModule(module, g, "");
 	});
 	 
 	// Print the dot script
@@ -28,14 +22,31 @@ export function buildUml(modules: Module[], outputFilename: string) {
 	console.log("done");
 }
 
-function buildClass(classDef: Class, g: graphviz.Graph) {
+function buildModule(module: Module, g: graphviz.Graph, path: string) {
+	let moduleId = getGraphNodeId(path, module.name);
+	let cluster = g.addCluster("cluster_" + moduleId);
+	
+	cluster.set("label", module.name);
+	cluster.set("style", "filled");
+	cluster.set("color", "lightgrey");
+		
+	module.modules.forEach(childModule => {
+		buildModule(childModule, cluster, moduleId);
+	});
+	
+	module.classes.forEach(childClass => {
+		buildClass(childClass, cluster, moduleId);
+	});
+}
+
+function buildClass(classDef: Class, g: graphviz.Graph, path: string) {
 	let  methodsSignature = classDef.methods
 		.filter(m => m.visibility == Visibility.Public)
 		.map(m => getMethodSignature(m) + "\\l")
 		.reduce((prev, curr) => prev + curr, "");
 		
 	var classNode = g.addNode(
-		classDef.name,
+		getGraphNodeId(path, classDef.name),
 		{ 
 			"label": "{" + classDef.name + "|" + methodsSignature + "}",
 			"shape" : "record",
@@ -44,7 +55,7 @@ function buildClass(classDef: Class, g: graphviz.Graph) {
 		});
 	
 	if(classDef.extends) {
-		g.addEdge(classNode, classDef.extends.fullyQualifiedName);
+		g.addEdge(classNode, classDef.extends.parts.reduce((path, name) => getGraphNodeId(path, name), ""));
 	}
 }
 
@@ -61,4 +72,8 @@ function visibilityToString(visibility: Visibility) {
 		case Visibility.Private:
 			return "-";		
 	}
+}
+
+function getGraphNodeId(path: string, name: string) {
+	return (path ? path + "÷" : "") + name;
 }

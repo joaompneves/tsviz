@@ -1,11 +1,14 @@
 import * as ts from "typescript";
 import { Element, Module, Class, Method, Visibility, QualifiedName } from "./ts-elements";
+import { Collections } from "./extensions";
 
-export function collectInformation(sourceFile: ts.SourceFile): Module {
+export function collectInformation(program: ts.Program, sourceFile: ts.SourceFile): Module {
+    const typeChecker = program.getTypeChecker();
+    
     let filename = sourceFile.fileName;
     filename = filename.substring(0, filename.lastIndexOf("."));
     
-    let module = new Module(filename, Visibility.Public);
+    let module = new Module(filename, null, Visibility.Public);
     
     analyseNode(sourceFile, module);
     
@@ -13,6 +16,8 @@ export function collectInformation(sourceFile: ts.SourceFile): Module {
         let childElement: Element;
         switch (node.kind) {
             case ts.SyntaxKind.ModuleDeclaration:
+                let moduleDeclaration = <ts.ModuleDeclaration> node;
+                childElement = new Module(moduleDeclaration.name.text, currentElement, Visibility.Public);
                 break;
                 
             case ts.SyntaxKind.ImportDeclaration:
@@ -21,11 +26,12 @@ export function collectInformation(sourceFile: ts.SourceFile): Module {
                 
             case ts.SyntaxKind.ClassDeclaration:
                 let classDeclaration = <ts.ClassDeclaration> node;
-                let classDef = new Class(classDeclaration.name.text, Visibility.Public);
-                if (classDeclaration.heritageClauses && classDeclaration.heritageClauses.length > 0) {
-                    let extendsClause = classDeclaration.heritageClauses.filter(h => h.token === ts.SyntaxKind.ExtendsKeyword);
-                    if (extendsClause.length > 0 && extendsClause[0].types.length > 0) {
-                        classDef.extends = new QualifiedName((<ts.Identifier> extendsClause[0].types[0].expression).text);
+                let classDef = new Class(classDeclaration.name.text, currentElement, Visibility.Public);
+                if (classDeclaration.heritageClauses) {
+                    let extendsClause = Collections.firstOrDefault(classDeclaration.heritageClauses, c => c.token === ts.SyntaxKind.ExtendsKeyword);
+                    if (extendsClause && extendsClause.types.length > 0) {
+                        var baseType = typeChecker.getTypeAtLocation(extendsClause.types[0]);
+                        classDef.extends = getFullyQualifiedName(typeChecker, sourceFile, baseType.symbol);
                     }
                 }
                 childElement = classDef;
@@ -33,7 +39,7 @@ export function collectInformation(sourceFile: ts.SourceFile): Module {
                 
             case ts.SyntaxKind.MethodDeclaration:
                 let methodDeclaration = <ts.MethodDeclaration> node;
-                childElement = new Method((<ts.Identifier>methodDeclaration.name).text, Visibility.Public);
+                childElement = new Method((<ts.Identifier>methodDeclaration.name).text, currentElement, Visibility.Public);
                 break;
         }
         
@@ -45,4 +51,15 @@ export function collectInformation(sourceFile: ts.SourceFile): Module {
     }
     
     return module;
+}
+
+function getFullyQualifiedName(typeChecker: ts.TypeChecker, sourceFile: ts.SourceFile, symbol: ts.Symbol): QualifiedName {
+    let nameParts = typeChecker.getFullyQualifiedName(symbol).split(".");
+    if(nameParts.length > 0) {
+        if(nameParts[0] !== sourceFile.moduleName) {
+            nameParts.unshift((<any> sourceFile).symbol.name);
+        }
+        nameParts[0] = nameParts[0].replace(/\"/g, ""); // TODO
+    }
+    return new QualifiedName(nameParts);
 }

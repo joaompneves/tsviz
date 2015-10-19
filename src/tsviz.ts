@@ -1,11 +1,12 @@
 /// <reference path="typings/node/node.d.ts" />
 
-import {readFileSync} from "fs";
+import { readFileSync, readdirSync } from "fs";
 import * as ts from "typescript";
 import * as analyser from "./ts-analyser"; 
 import * as umBuilder from "./uml-builder";
 
-const fileNames = process.argv.slice(2);
+const targetPath = process.argv[2];
+const fileNames = readdirSync(targetPath);
 
 const compilerOptions: ts.CompilerOptions = {
     noEmitOnError: true, 
@@ -13,12 +14,9 @@ const compilerOptions: ts.CompilerOptions = {
     target: ts.ScriptTarget.ES5, 
     module: ts.ModuleKind.AMD
 };
+
 let compilerHost = ts.createCompilerHost(compilerOptions, /*setParentNodes */ true);
 let program = ts.createProgram(fileNames, compilerOptions, compilerHost);
-    
-// Parse a file
-//let sourceFile = ts.createSourceFile(fileName, readFileSync(fileName).toString(), ts.ScriptTarget.ES6, /*setParentNodes */ true);
-
 
 // analyse sources
 var modules = program.getSourceFiles()

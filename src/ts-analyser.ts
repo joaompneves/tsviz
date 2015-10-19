@@ -56,9 +56,13 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
 function getFullyQualifiedName(typeChecker: ts.TypeChecker, sourceFile: ts.SourceFile, symbol: ts.Symbol): QualifiedName {
     let nameParts = typeChecker.getFullyQualifiedName(symbol).split(".");
     if(nameParts.length > 0) {
+        if (nameParts[0].indexOf("\"")) {
+            // HACK quick check to see if fullname is prefixed by the module name
+            // must have a better way to do this
+            // and insert the module name
+            nameParts.unshift(sourceFile.fileName.replace(/\.ts$/, ""));
+        }
         nameParts[0] = nameParts[0].replace(/\"/g, "");
-        //&& nameParts[0] !== sourceFile.fileName) {
-        //nameParts.unshift((<any> sourceFile).symbol.name); // insert the name of the module at the beginning
     }
     return new QualifiedName(nameParts);
 }

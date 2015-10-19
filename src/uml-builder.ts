@@ -74,6 +74,6 @@ function visibilityToString(visibility: Visibility) {
 	}
 }
 
-function getGraphNodeId(path: string, name: string) {
+function getGraphNodeId(path: string, name: string): string {
 	return (path ? path + "÷" : "") + name;
 }

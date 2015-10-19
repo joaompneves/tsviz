@@ -39,7 +39,7 @@ function buildModule(module: Module, g: graphviz.Graph, path: string, level: num
 	let moduleId = getGraphNodeId(path, module.name);
 	let cluster = g.addCluster("cluster_" + moduleId);
 	
-	cluster.set("label", module.name);
+	cluster.set("label", (module.visibility !== Visibility.Public ? visibilityToString(module.visibility) + " " : "") + module.name);
 	cluster.set("style", "filled");
 	cluster.set("color", "gray" + Math.max(40, (95 - (level * 6))));
 		
@@ -79,7 +79,7 @@ function visibilityToString(visibility: Visibility) {
 		case Visibility.Public:
 			return "+";
 		case Visibility.Protected:
-			return "-";
+			return "~";
 		case Visibility.Private:
 			return "-";		
 	}

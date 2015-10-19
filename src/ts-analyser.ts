@@ -14,10 +14,12 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
     
     function analyseNode(node: ts.Node, currentElement: Element) {
         let childElement: Element;
+        let skipChildren = false;
+        
         switch (node.kind) {
             case ts.SyntaxKind.ModuleDeclaration:
                 let moduleDeclaration = <ts.ModuleDeclaration> node;
-                childElement = new Module(moduleDeclaration.name.text, currentElement, Visibility.Public);
+                childElement = new Module(moduleDeclaration.name.text, currentElement, modifierToVisibility(node.modifiers));
                 break;
                 
             case ts.SyntaxKind.ImportDeclaration:
@@ -26,7 +28,7 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
                 
             case ts.SyntaxKind.ClassDeclaration:
                 let classDeclaration = <ts.ClassDeclaration> node;
-                let classDef = new Class(classDeclaration.name.text, currentElement, Visibility.Public);
+                let classDef = new Class(classDeclaration.name.text, currentElement, modifierToVisibility(node.modifiers));
                 if (classDeclaration.heritageClauses) {
                     let extendsClause = Collections.firstOrDefault(classDeclaration.heritageClauses, c => c.token === ts.SyntaxKind.ExtendsKeyword);
                     if (extendsClause && extendsClause.types.length > 0) {
@@ -39,7 +41,8 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
                 
             case ts.SyntaxKind.MethodDeclaration:
                 let methodDeclaration = <ts.MethodDeclaration> node;
-                childElement = new Method((<ts.Identifier>methodDeclaration.name).text, currentElement, Visibility.Public);
+                childElement = new Method((<ts.Identifier>methodDeclaration.name).text, currentElement, modifierToVisibility(node.modifiers));
+                skipChildren = true;
                 break;
         }
         
@@ -47,7 +50,9 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
             currentElement.addElement(childElement);
         }
         
-        ts.forEachChild(node, (node) => analyseNode(node, childElement || currentElement));
+        if(!skipChildren) {
+            ts.forEachChild(node, (node) => analyseNode(node, childElement || currentElement));
+        }
     }
     
     return module;
@@ -65,4 +70,15 @@ function getFullyQualifiedName(typeChecker: ts.TypeChecker, sourceFile: ts.Sourc
         nameParts[0] = nameParts[0].replace(/\"/g, "");
     }
     return new QualifiedName(nameParts);
+}
+
+function modifierToVisibility(modifiers: ts.ModifiersArray) {
+    if(modifiers) {
+        if (modifiers.flags & ts.SyntaxKind.ProtectedKeyword) {
+            return Visibility.Protected;
+        } else if(modifiers.flags & ts.SyntaxKind.PrivateKeyword) {
+            return Visibility.Private;
+        }
+    }
+    return Visibility.Public;
 }

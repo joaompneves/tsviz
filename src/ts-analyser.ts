@@ -1,6 +1,6 @@
 import * as ts from "typescript";
 import * as path from "path";
-import { Element, Module, Class, Method, Visibility, QualifiedName } from "./ts-elements";
+import { Element, Module, Class, Method, ImportedModule, Visibility, QualifiedName } from "./ts-elements";
 import { Collections } from "./extensions";
 
 export function collectInformation(program: ts.Program, sourceFile: ts.SourceFile): Module {
@@ -24,7 +24,10 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
                 break;
                 
             case ts.SyntaxKind.ImportDeclaration:
-                //console.log((<ts.ImportDeclaration> node).moduleSpecifier.getText());
+                let importDeclaration = (<ts.ImportDeclaration> node);
+                let moduleName = importDeclaration.moduleSpecifier.getText();
+                moduleName = moduleName.replace(/\"/g, "");
+                childElement = new ImportedModule(moduleName, currentElement, Visibility.Public);
                 break;
                 
             case ts.SyntaxKind.ClassDeclaration:
@@ -41,8 +44,9 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
                 break;
                 
             case ts.SyntaxKind.MethodDeclaration:
-                let methodDeclaration = <ts.MethodDeclaration> node;
-                childElement = new Method((<ts.Identifier>methodDeclaration.name).text, currentElement, modifierToVisibility(node.modifiers));
+            case ts.SyntaxKind.FunctionDeclaration:
+                let functionDeclaration = <ts.Declaration> node;
+                childElement = new Method((<ts.Identifier>functionDeclaration.name).text, currentElement, modifierToVisibility(node.modifiers));
                 skipChildren = true;
                 break;
         }

@@ -41,11 +41,12 @@ export abstract class Element {
 	}
 } 
 
-
 export class Module extends Element {
 	private _classes: Class[] = new Array<Class>();
 	private _modules: Module[] = new Array<Module>();
-	
+	private _dependencies: ImportedModule[] = new Array<ImportedModule>();
+	private _methods = new Array<Method>();
+		
 	public get classes(): Array<Class> {
 		return this._classes;
 	}
@@ -54,12 +55,26 @@ export class Module extends Element {
 		return this._modules;
 	}
 	
+	public get dependencies(): Array<ImportedModule> {
+		return this._dependencies;
+	}
+	
+	public get methods(): Array<Method> {
+		return this._methods;
+	}
+	
 	protected getElementCollection(element: Element) : Array<Element> {
 		if (element instanceof Class) {
 			return this.classes;
 		}
 		if (element instanceof Module) {
 			return this.modules;
+		}
+		if (element instanceof ImportedModule) {
+			return this.dependencies;
+		}
+		if (element instanceof Method) {
+			return this.methods;
 		}
 		return super.getElementCollection(element);
 	}
@@ -90,6 +105,10 @@ export class Class extends Element {
 }
 
 export class Method extends Element {
+	
+}
+
+export class ImportedModule extends Element {
 	
 }
 

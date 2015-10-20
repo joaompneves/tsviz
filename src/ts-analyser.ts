@@ -1,4 +1,5 @@
 import * as ts from "typescript";
+import * as path from "path";
 import { Element, Module, Class, Method, Visibility, QualifiedName } from "./ts-elements";
 import { Collections } from "./extensions";
 
@@ -6,7 +7,7 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
     const typeChecker = program.getTypeChecker();
     
     let filename = sourceFile.fileName;
-    filename = filename.substring(0, filename.lastIndexOf("."));
+    filename = path.basename(filename.substr(0, filename.lastIndexOf(".")));
     
     let module = new Module(filename, null, Visibility.Public);
     

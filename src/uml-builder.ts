@@ -57,14 +57,16 @@ function buildClass(classDef: Class, g: graphviz.Graph, path: string) {
 		.filter(m => m.visibility == Visibility.Public)
 		.map(m => getMethodSignature(m) + "\\l")
 		.reduce((prev, curr) => prev + curr, "");
-		
+	if (methodsSignature) {
+		methodsSignature = "|" + methodsSignature;
+	}
+	
 	var classNode = g.addNode(
 		getGraphNodeId(path, classDef.name),
 		{ 
-			"label": "{" + classDef.name + "|" + methodsSignature + "}",
-
+			"label": "{" + classDef.name + methodsSignature + "}",
 		});
-	classNode.set
+	
 	if(classDef.extends) {
 		g.addEdge(classNode, classDef.extends.parts.reduce((path, name) => getGraphNodeId(path, name), ""));
 	}
@@ -86,5 +88,5 @@ function visibilityToString(visibility: Visibility) {
 }
 
 function getGraphNodeId(path: string, name: string): string {
-	return (path ? path + "÷" : "") + name;
+	return ((path ? path + "÷" : "") + name).replace(/\//g, "|");
 }

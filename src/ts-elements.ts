@@ -4,6 +4,11 @@ export enum Visibility {
 	Public,
 	Protected
 }
+let ModuleTypeName = "";
+let ClassTypeName = "";
+let MethodTypeName = "";
+let PropertyTypeName = "";
+let ImportedModuleTypeName = "";
 
 export class QualifiedName {
 	private nameParts: string[];
@@ -18,7 +23,7 @@ export class QualifiedName {
 }
 
 export abstract class Element {
-	constructor(private _name: string, private _parent: Element, private _visibility: Visibility) { }
+	constructor(private _name: string, private _parent: Element, private _visibility: Visibility = Visibility.Public) { }
 	
 	public get name(): string {
 		return this._name;
@@ -64,17 +69,15 @@ export class Module extends Element {
 	}
 	
 	protected getElementCollection(element: Element) : Array<Element> {
-		if (element instanceof Class) {
-			return this.classes;
-		}
-		if (element instanceof Module) {
-			return this.modules;
-		}
-		if (element instanceof ImportedModule) {
-			return this.dependencies;
-		}
-		if (element instanceof Method) {
-			return this.methods;
+		switch((<any>element.constructor).name) {
+			case ClassTypeName:
+				return this.classes;
+			case ModuleTypeName:
+				return this.modules;
+			case ImportedModuleTypeName:
+				return this.dependencies;
+			case MethodTypeName:
+				return this.methods;
 		}
 		return super.getElementCollection(element);
 	}
@@ -82,10 +85,19 @@ export class Module extends Element {
 
 export class Class extends Element {
 	private _methods = new Array<Method>();
+	private _properties : { [name: string ] : Property } = {};
 	private extendingClass: QualifiedName;
 	
 	public get methods(): Array<Method> {
 		return this._methods;
+	}
+	
+	public get properties(): Array<Property> {
+		var result = new Array<Property>();
+		for (let prop of Object.keys(this._properties)) {
+			result.push(this._properties[prop]);
+		}
+		return result;
 	}
 	
 	protected getElementCollection(element: Element) : Array<Element> {
@@ -93,6 +105,21 @@ export class Class extends Element {
 			return this.methods;
 		}
 		return super.getElementCollection(element);
+	}
+	
+	public addElement(element: Element) {
+		if(element instanceof Property) {
+			let property = <Property> element;
+			let existingProperty = this._properties[property.name];
+			if (existingProperty) {
+				existingProperty.hasGetter = existingProperty.hasGetter || property.hasGetter;
+				existingProperty.hasSetter = existingProperty.hasSetter || property.hasSetter;
+			} else {
+				this._properties[property.name] = property;
+			}
+			return;
+		}
+		this.getElementCollection(element).push(element);
 	}
 	
 	public get extends(): QualifiedName {
@@ -112,3 +139,33 @@ export class ImportedModule extends Element {
 	
 }
 
+export class Property extends Element {
+	private _hasGetter: boolean;
+	private _hasSetter: boolean;
+	
+	public get hasGetter(): boolean {
+		return this._hasGetter;
+	}
+	
+	public set hasGetter(value: boolean) {
+		this._hasGetter = value;
+	}
+	
+	public get hasSetter(): boolean {
+		return this._hasSetter;
+	}
+	
+	public set hasSetter(value: boolean) {
+		this._hasSetter = value;
+	}
+}
+
+function typeName(_class: any) {
+	return _class.prototype.constructor.name
+}
+
+ModuleTypeName = typeName(Module);
+ClassTypeName = typeName(Class);
+MethodTypeName = typeName(Method);
+PropertyTypeName = typeName(Property);
+ImportedModuleTypeName = typeName(ImportedModule);

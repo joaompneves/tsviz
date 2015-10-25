@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from "fs";
 import * as path from "path";
 import * as ts from "typescript";
 import * as analyser from "./ts-analyser"; 
-import * as umBuilder from "./uml-builder";
+import * as umlBuilder from "./uml-builder";
 
 const targetPath = process.argv[2];
 const fileNames = readdirSync(targetPath).map(f => path.join(targetPath, f));
@@ -24,4 +24,6 @@ var modules = program.getSourceFiles()
     .filter(f => f.fileName.indexOf("lib.d.ts") === -1)
     .map(sourceFile => analyser.collectInformation(program, sourceFile));
 
-umBuilder.buildUml(modules, "diagram.png");
+umlBuilder.buildUml(modules, "diagram.png");
+
+console.log("done");

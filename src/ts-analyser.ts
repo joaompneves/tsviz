@@ -1,15 +1,15 @@
 import * as ts from "typescript";
 import * as path from "path";
-import { Element, Module, Class, Method, ImportedModule, Visibility, QualifiedName } from "./ts-elements";
+import { Element, Module, Class, Method, ImportedModule, Property, Visibility, QualifiedName } from "./ts-elements";
 import { Collections } from "./extensions";
 
 export function collectInformation(program: ts.Program, sourceFile: ts.SourceFile): Module {
     const typeChecker = program.getTypeChecker();
     
     let filename = sourceFile.fileName;
-    filename = path.basename(filename.substr(0, filename.lastIndexOf(".")));
+    filename = path.basename(filename.substr(0, filename.lastIndexOf("."))); // get module filename without extension
     
-    let module = new Module(filename, null, Visibility.Public);
+    let module = new Module(filename, null);
     
     analyseNode(sourceFile, module);
     
@@ -20,33 +20,44 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
         switch (node.kind) {
             case ts.SyntaxKind.ModuleDeclaration:
                 let moduleDeclaration = <ts.ModuleDeclaration> node;
-                childElement = new Module(moduleDeclaration.name.text, currentElement, modifierToVisibility(node.modifiers));
+                childElement = new Module(moduleDeclaration.name.text, currentElement, getVisibility(node));
                 break;
                 
             case ts.SyntaxKind.ImportDeclaration:
                 let importDeclaration = (<ts.ImportDeclaration> node);
-                let moduleName = importDeclaration.moduleSpecifier.getText();
-                moduleName = moduleName.replace(/\"/g, "");
-                childElement = new ImportedModule(moduleName, currentElement, Visibility.Public);
+                let moduleName = (<ts.StringLiteral> importDeclaration.moduleSpecifier).text;
+                childElement = new ImportedModule(moduleName, currentElement);
                 break;
                 
             case ts.SyntaxKind.ClassDeclaration:
                 let classDeclaration = <ts.ClassDeclaration> node;
-                let classDef = new Class(classDeclaration.name.text, currentElement, modifierToVisibility(node.modifiers));
+                let classDef = new Class(classDeclaration.name.text, currentElement, getVisibility(node));
                 if (classDeclaration.heritageClauses) {
                     let extendsClause = Collections.firstOrDefault(classDeclaration.heritageClauses, c => c.token === ts.SyntaxKind.ExtendsKeyword);
                     if (extendsClause && extendsClause.types.length > 0) {
-                        var baseType = typeChecker.getTypeAtLocation(extendsClause.types[0]);
-                        classDef.extends = getFullyQualifiedName(typeChecker, sourceFile, baseType.symbol);
+                        classDef.extends = getFullyQualifiedName(extendsClause.types[0]);
                     }
                 }
                 childElement = classDef;
+                break;
+            
+            case ts.SyntaxKind.GetAccessor:
+            case ts.SyntaxKind.SetAccessor:
+                let propertyDeclaration = <ts.PropertyDeclaration> node;
+                let property = new Property((<ts.Identifier>propertyDeclaration.name).text, currentElement, getVisibility(node));
+                if (node.kind === ts.SyntaxKind.GetAccessor) {
+                    property.hasGetter = true;
+                } else {
+                    property.hasSetter = true;
+                }
+                childElement = property;
+                skipChildren = true;
                 break;
                 
             case ts.SyntaxKind.MethodDeclaration:
             case ts.SyntaxKind.FunctionDeclaration:
                 let functionDeclaration = <ts.Declaration> node;
-                childElement = new Method((<ts.Identifier>functionDeclaration.name).text, currentElement, modifierToVisibility(node.modifiers));
+                childElement = new Method((<ts.Identifier>functionDeclaration.name).text, currentElement, getVisibility(node));
                 skipChildren = true;
                 break;
         }
@@ -55,35 +66,54 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
             currentElement.addElement(childElement);
         }
         
-        if(!skipChildren) {
-            ts.forEachChild(node, (node) => analyseNode(node, childElement || currentElement));
+        if (skipChildren) {
+            return; // no need to inspect children
         }
+        
+        ts.forEachChild(node, (node) => analyseNode(node, childElement || currentElement));
     }
     
+    function getFullyQualifiedName(expression: ts.ExpressionWithTypeArguments) {
+        let symbol = typeChecker.getSymbolAtLocation(expression.expression);
+        if (symbol) {
+            let nameParts = typeChecker.getFullyQualifiedName(symbol).split(".");
+            if (symbol.declarations.length > 0 && symbol.declarations[0].kind === ts.SyntaxKind.ImportSpecifier) {
+                // symbol comes from an imported module
+                // get the module name from the import declaration
+                let importSpecifier = symbol.declarations[0];
+                let moduleName = (<ts.StringLiteral> (<ts.ImportDeclaration> importSpecifier.parent.parent.parent).moduleSpecifier).text;
+                nameParts.unshift(moduleName);
+            } else {
+                if (nameParts.length > 0) {
+                    nameParts[0] = nameParts[0].replace(/\"/g, ""); // remove " from module name
+                }
+            }
+            return new QualifiedName(nameParts);
+        }
+        console.warn("Unable to resolve type: '" + expression.getText() + "'");
+        return new QualifiedName(["unknown?"]);
+    }
+    
+    function getVisibility(node: ts.Node) {
+        if (node.modifiers) {
+            switch (node.modifiers.flags) {
+                case ts.NodeFlags.Protected:
+                    return Visibility.Protected;
+                case ts.NodeFlags.Private:
+                    return Visibility.Private;
+                case ts.NodeFlags.Public:
+                case ts.NodeFlags.Export:
+                    return Visibility.Public
+            }
+        }
+        switch (node.parent.kind) {
+            case ts.SyntaxKind.ClassDeclaration:
+                return Visibility.Public;
+            case ts.SyntaxKind.ModuleDeclaration:
+                return Visibility.Private;
+        }
+        return Visibility.Private;
+    }
+
     return module;
-}
-
-function getFullyQualifiedName(typeChecker: ts.TypeChecker, sourceFile: ts.SourceFile, symbol: ts.Symbol): QualifiedName {
-    let nameParts = typeChecker.getFullyQualifiedName(symbol).split(".");
-    if(nameParts.length > 0) {
-        if (nameParts[0].indexOf("\"")) {
-            // HACK quick check to see if fullname is prefixed by the module name
-            // must have a better way to do this
-            // and insert the module name
-            nameParts.unshift(sourceFile.fileName.replace(/\.ts$/, ""));
-        }
-        nameParts[0] = nameParts[0].replace(/\"/g, "");
-    }
-    return new QualifiedName(nameParts);
-}
-
-function modifierToVisibility(modifiers: ts.ModifiersArray) {
-    if(modifiers) {
-        if (modifiers.flags & ts.SyntaxKind.ProtectedKeyword) {
-            return Visibility.Protected;
-        } else if(modifiers.flags & ts.SyntaxKind.PrivateKeyword) {
-            return Visibility.Private;
-        }
-    }
-    return Visibility.Public;
 }

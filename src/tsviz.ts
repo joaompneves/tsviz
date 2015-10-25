@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 /// <reference path="typings/node/node.d.ts" />
 
 import { readFileSync, readdirSync, lstatSync, existsSync } from "fs";
@@ -13,9 +15,9 @@ function main(args: string[]) {
     if (nonSwitches.length < 1) {
         console.error(
             "Invalid number of arguments. Usage:\n" + 
-            "<switches> <sources filename/directory> <output.png>\n" +
+            "  <switches> <sources filename/directory> <output.png>\n" +
             "Available switches:\n" +
-            "-dependencies: produces a modules' dependencies diagram");
+            "  -dependencies: produces a modules' dependencies diagram");
         return;
     }
     

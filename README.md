@@ -6,7 +6,7 @@
 ## Installation
 
 ```bash
-$ npm install
+$ npm install -g tsviz
 ```
 
 ## Usage
@@ -14,9 +14,9 @@ $ npm install
 In order to create a diagram for an entire project you simply type: 
 
 ```bash
-$ node tsviz samples/ diagram.png
+$ tsviz samples/ diagram.png
 ```
 
 ### Arguments
-* `-dependencies`<br>
+* `-dependencies`
   Produces a diagram with the dependencies between modules.

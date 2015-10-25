@@ -7,9 +7,11 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
     const typeChecker = program.getTypeChecker();
     
     let filename = sourceFile.fileName;
-    filename = path.basename(filename.substr(0, filename.lastIndexOf("."))); // get module filename without extension
+    filename = filename.substr(0, filename.lastIndexOf(".")); // filename without extension
+    let moduleName  = path.basename(filename); // get module filename without directory
     
-    let module = new Module(filename, null);
+    let module = new Module(moduleName, null);
+    module.path = path.dirname(filename);
     
     analyseNode(sourceFile, module);
     
@@ -84,8 +86,10 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
                 let moduleName = (<ts.StringLiteral> (<ts.ImportDeclaration> importSpecifier.parent.parent.parent).moduleSpecifier).text;
                 nameParts.unshift(moduleName);
             } else {
-                if (nameParts.length > 0) {
-                    nameParts[0] = nameParts[0].replace(/\"/g, ""); // remove " from module name
+                if (nameParts.length > 0 && nameParts[0].indexOf("\"") === 0) {
+                    // if first name part has " then it should be a module name
+                    let moduleName = nameParts[0].replace(/\"/g, ""); // remove " from module name
+                    nameParts[0] = moduleName;
                 }
             }
             return new QualifiedName(nameParts);

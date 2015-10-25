@@ -51,7 +51,8 @@ export class Module extends Element {
 	private _modules: Module[] = new Array<Module>();
 	private _dependencies: ImportedModule[] = new Array<ImportedModule>();
 	private _methods = new Array<Method>();
-		
+	private _path: string;
+	
 	public get classes(): Array<Class> {
 		return this._classes;
 	}
@@ -66,6 +67,14 @@ export class Module extends Element {
 	
 	public get methods(): Array<Method> {
 		return this._methods;
+	}
+	
+	public get path(): string {
+		return this._path;
+	}
+	
+	public set path(value: string) {
+		this._path = value;
 	}
 	
 	protected getElementCollection(element: Element) : Array<Element> {
@@ -86,7 +95,7 @@ export class Module extends Element {
 export class Class extends Element {
 	private _methods = new Array<Method>();
 	private _properties : { [name: string ] : Property } = {};
-	private extendingClass: QualifiedName;
+	private _extends: QualifiedName;
 	
 	public get methods(): Array<Method> {
 		return this._methods;
@@ -123,11 +132,11 @@ export class Class extends Element {
 	}
 	
 	public get extends(): QualifiedName {
-		return this.extendingClass;
+		return this._extends;
 	}
 	
 	public set extends(extendingClass: QualifiedName) {
-		this.extendingClass = extendingClass;
+		this._extends = extendingClass;
 	}
 }
 

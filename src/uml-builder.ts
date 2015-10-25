@@ -25,9 +25,15 @@ export function buildUml(modules: Module[], outputFilename: string) {
 		buildModule(module, g, "", 0);
 	});
 	
-	// TODO check if exists on PATH
-	// Set GraphViz path (if not in your path)
-	g.setGraphVizPath("/usr/local/bin");
+	if (process.platform === "win32") {
+		let pathVariable = <string> process.env["PATH"];
+		if (pathVariable.indexOf("Graphviz") === -1) {
+			console.warn("Could not find Graphviz in PATH.");
+		}
+	} else {
+		// Set GraphViz path (if not in your path)
+		g.setGraphVizPath("/usr/local/bin");
+	}
 	
 	// Generate a PNG output
 	g.output("png", outputFilename);

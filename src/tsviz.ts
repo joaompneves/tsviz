@@ -7,13 +7,20 @@ import * as analyser from "./ts-analyser";
 import * as umlBuilder from "./uml-builder";
 
 function main(args: string[]) {
-    if (args.length < 1) {
-        console.error("Invalid number of arguments. Usage:\n<sources filename/directory> <output.png>");
+    let switches = args.filter(a => a.indexOf("-") === 0);
+    let nonSwitches = args.filter(a => a.indexOf("-") !== 0);
+    
+    if (nonSwitches.length < 1) {
+        console.error(
+            "Invalid number of arguments. Usage:\n" + 
+            "<switches> <sources filename/directory> <output.png>\n" +
+            "Available switches:\n" +
+            "-dependencies: produces a modules' dependencies diagram");
         return;
     }
     
-    let targetPath = args[0];
-    let outputFilename = args.length > 1 ? args[1] : "diagram.png";
+    let targetPath = nonSwitches.length > 0 ? nonSwitches[0] : "";
+    let outputFilename = nonSwitches.length > 1 ? nonSwitches[1] : "diagram.png";
     
     if (!existsSync(targetPath)) {
         console.error("'" + targetPath + "' does not exist");
@@ -47,7 +54,11 @@ function main(args: string[]) {
     
     process.chdir(originalDir); // go back to the original dir
     
-    umlBuilder.buildUml(modules, outputFilename);
+    if(switches.indexOf("-dependencies") >= 0) {
+        umlBuilder.buildUml(modules, outputFilename, true); // dependencies diagram
+    } else {
+        umlBuilder.buildUml(modules, outputFilename, false); // uml diagram
+    }
     
     console.log("done");
 }

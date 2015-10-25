@@ -4,7 +4,7 @@ import * as graphviz from "graphviz";
 import { Element, Module, Class, Method, Property, Visibility, QualifiedName } from "./ts-elements";
 import { Collections } from "./extensions";
 
-export function buildUml(modules: Module[], outputFilename: string) {
+export function buildUml(modules: Module[], outputFilename: string, dependenciesOnly: boolean) {
 	let g: graphviz.Graph = graphviz.digraph("G");
 
 	const FontSizeKey = "fontsize";
@@ -22,7 +22,7 @@ export function buildUml(modules: Module[], outputFilename: string) {
 	g.setNodeAttribut("shape", "record");
 	
 	modules.forEach(module => {
-		buildModule(module, g, "", 0);
+		buildModule(module, g, "", 0, dependenciesOnly);
 	});
 	
 	if (process.platform === "win32") {
@@ -39,7 +39,7 @@ export function buildUml(modules: Module[], outputFilename: string) {
 	g.output("png", outputFilename);
 }
 
-function buildModule(module: Module, g: graphviz.Graph, path: string, level: number) {
+function buildModule(module: Module, g: graphviz.Graph, path: string, level: number, dependenciesOnly: boolean) {
 	const ModulePrefix = "cluster_";
 	
 	let moduleId = getGraphNodeId(path, module.name);
@@ -49,28 +49,29 @@ function buildModule(module: Module, g: graphviz.Graph, path: string, level: num
 	cluster.set("style", "filled");
 	cluster.set("color", "gray" + Math.max(40, (95 - (level * 6))));
 	
-	let moduleMethods = combineSignatures(module.methods, getMethodSignature);
-	if (moduleMethods) {
-		cluster.addNode(
-			getGraphNodeId(path, module.name),
-			{ 
-				"label": moduleMethods,
-				"shape": "none"
-			});
+	if (dependenciesOnly) {
+		Collections.distinct(module.dependencies, d => d.name).forEach(d => {
+			g.addEdge(module.name, getGraphNodeId("", d.name));
+		});
+	} else {
+		let moduleMethods = combineSignatures(module.methods, getMethodSignature);
+		if (moduleMethods) {
+			cluster.addNode(
+				getGraphNodeId(path, module.name),
+				{ 
+					"label": moduleMethods,
+					"shape": "none"
+				});
+		}
+		
+		module.modules.forEach(childModule => {
+			buildModule(childModule, cluster, moduleId, level + 1, false);
+		});
+		
+		module.classes.forEach(childClass => {
+			buildClass(childClass, cluster, moduleId);
+		});
 	}
-	
-	module.modules.forEach(childModule => {
-		buildModule(childModule, cluster, moduleId, level + 1);
-	});
-	
-	module.classes.forEach(childClass => {
-		buildClass(childClass, cluster, moduleId);
-	});
-	
-	return;
-	Collections.distinct(module.dependencies, d => d.name).forEach(d => {
-		g.addEdge(module.name, getGraphNodeId("", d.name));
-	});
 }
 
 function buildClass(classDef: Class, g: graphviz.Graph, path: string) {

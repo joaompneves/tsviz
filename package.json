@@ -1,6 +1,6 @@
 {
   "name": "tsviz",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Simple tool to create UML diagrams from typescript modules",
   "main": "bin/tsviz.js",
   "bin": {

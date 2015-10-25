@@ -8,6 +8,7 @@
 ```bash
 $ npm install -g tsviz
 ```
+You also need to install GraphViz[http://www.graphviz.org/Download.php]
 
 ## Usage
 

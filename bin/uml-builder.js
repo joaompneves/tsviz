@@ -1,4 +1,3 @@
-/// <reference path="typings/graphviz/graphviz.d.ts"/>
 var graphviz = require("graphviz");
 var ts_elements_1 = require("./ts-elements");
 var extensions_1 = require("./extensions");

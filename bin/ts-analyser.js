@@ -14,31 +14,31 @@ function collectInformation(program, sourceFile) {
         var childElement;
         var skipChildren = false;
         switch (node.kind) {
-            case 216:
+            case 220:
                 var moduleDeclaration = node;
                 childElement = new ts_elements_1.Module(moduleDeclaration.name.text, currentElement, getVisibility(node));
                 break;
-            case 220:
+            case 224:
                 var importDeclaration = node;
                 var moduleName_1 = importDeclaration.moduleSpecifier.text;
                 childElement = new ts_elements_1.ImportedModule(moduleName_1, currentElement);
                 break;
-            case 212:
+            case 216:
                 var classDeclaration = node;
                 var classDef = new ts_elements_1.Class(classDeclaration.name.text, currentElement, getVisibility(node));
                 if (classDeclaration.heritageClauses) {
-                    var extendsClause = extensions_1.Collections.firstOrDefault(classDeclaration.heritageClauses, function (c) { return c.token === 81; });
+                    var extendsClause = extensions_1.Collections.firstOrDefault(classDeclaration.heritageClauses, function (c) { return c.token === 83; });
                     if (extendsClause && extendsClause.types.length > 0) {
                         classDef.extends = getFullyQualifiedName(extendsClause.types[0]);
                     }
                 }
                 childElement = classDef;
                 break;
-            case 143:
-            case 144:
+            case 145:
+            case 146:
                 var propertyDeclaration = node;
                 var property = new ts_elements_1.Property(propertyDeclaration.name.text, currentElement, getVisibility(node));
-                if (node.kind === 143) {
+                if (node.kind === 145) {
                     property.hasGetter = true;
                 }
                 else {
@@ -47,8 +47,8 @@ function collectInformation(program, sourceFile) {
                 childElement = property;
                 skipChildren = true;
                 break;
-            case 141:
-            case 211:
+            case 143:
+            case 215:
                 var functionDeclaration = node;
                 childElement = new ts_elements_1.Method(functionDeclaration.name.text, currentElement, getVisibility(node));
                 skipChildren = true;
@@ -66,7 +66,7 @@ function collectInformation(program, sourceFile) {
         var symbol = typeChecker.getSymbolAtLocation(expression.expression);
         if (symbol) {
             var nameParts = typeChecker.getFullyQualifiedName(symbol).split(".");
-            if (symbol.declarations.length > 0 && symbol.declarations[0].kind === 224) {
+            if (symbol.declarations.length > 0 && symbol.declarations[0].kind === 228) {
                 var importSpecifier = symbol.declarations[0];
                 var moduleName_2 = importSpecifier.parent.parent.parent.moduleSpecifier.text;
                 nameParts.unshift(moduleName_2);
@@ -95,9 +95,9 @@ function collectInformation(program, sourceFile) {
             }
         }
         switch (node.parent.kind) {
-            case 212:
-                return ts_elements_1.Visibility.Public;
             case 216:
+                return ts_elements_1.Visibility.Public;
+            case 220:
                 return ts_elements_1.Visibility.Private;
         }
         return ts_elements_1.Visibility.Private;

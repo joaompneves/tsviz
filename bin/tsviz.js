@@ -37,7 +37,7 @@ function main(args) {
     var compilerHost = ts.createCompilerHost(compilerOptions, true);
     var program = ts.createProgram(fileNames, compilerOptions, compilerHost);
     var modules = program.getSourceFiles()
-        .filter(function (f) { return f.fileName.indexOf("lib.d.ts") === -1; })
+        .filter(function (f) { return f.fileName.lastIndexOf(".d.ts") !== f.fileName.length - ".d.ts".length; })
         .map(function (sourceFile) { return analyser.collectInformation(program, sourceFile); });
     process.chdir(originalDir);
     if (switches.indexOf("-dependencies") >= 0) {

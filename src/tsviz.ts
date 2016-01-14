@@ -51,7 +51,7 @@ function main(args: string[]) {
     
     // analyse sources
     let modules = program.getSourceFiles()
-        .filter(f => f.fileName.indexOf("lib.d.ts") === -1)
+        .filter(f => f.fileName.lastIndexOf(".d.ts") !== f.fileName.length - ".d.ts".length)
         .map(sourceFile => analyser.collectInformation(program, sourceFile));
     
     process.chdir(originalDir); // go back to the original dir

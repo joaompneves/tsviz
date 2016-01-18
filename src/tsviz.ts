@@ -1,29 +1,17 @@
-#! /usr/bin/env node
-
 /// <reference path="typings/node/node.d.ts" />
 
-import { readFileSync, readdirSync, lstatSync, existsSync } from "fs";
-import * as path from "path";
+import { readdirSync, lstatSync, existsSync } from "fs";
 import * as ts from "typescript";
+import { Module } from "./ts-elements";
 import * as analyser from "./ts-analyser"; 
 import * as umlBuilder from "./uml-builder";
 
-function main(args: string[]) {
-    let switches = args.filter(a => a.indexOf("-") === 0);
-    let nonSwitches = args.filter(a => a.indexOf("-") !== 0);
-    
-    if (nonSwitches.length < 1) {
-        console.error(
-            "Invalid number of arguments. Usage:\n" + 
-            "  <switches> <sources filename/directory> <output.png>\n" +
-            "Available switches:\n" +
-            "  -dependencies: produces a modules' dependencies diagram");
-        return;
-    }
-    
-    let targetPath = nonSwitches.length > 0 ? nonSwitches[0] : "";
-    let outputFilename = nonSwitches.length > 1 ? nonSwitches[1] : "diagram.png";
-    
+export interface OutputModule {
+	name: string;
+	dependencies: string[];
+}
+
+function getModules(targetPath: string) {
     if (!existsSync(targetPath)) {
         console.error("'" + targetPath + "' does not exist");
         return;
@@ -56,13 +44,27 @@ function main(args: string[]) {
     
     process.chdir(originalDir); // go back to the original dir
     
-    if(switches.indexOf("-dependencies") >= 0) {
-        umlBuilder.buildUml(modules, outputFilename, true); // dependencies diagram
-    } else {
-        umlBuilder.buildUml(modules, outputFilename, false); // uml diagram
-    }
-    
+    return modules;
+}
+
+export function createGraph(targetPath: string, outputFilename: string, dependenciesOnly: boolean) {
+    let modules = getModules(targetPath);
+    umlBuilder.buildUml(modules, outputFilename, dependenciesOnly);
     console.log("done");
 }
 
-main(process.argv.slice(2));
+export function getModulesDependencies(targetPath: string): OutputModule[] {
+    let modules = getModules(targetPath);
+    let outputModules: OutputModule[] = [];
+	modules.sort((a, b) => a.name.localeCompare(b.name)).forEach(module => {
+		let uniqueDependencies: { [name: string]: string } = {};
+		module.dependencies.forEach(dependency => {
+			uniqueDependencies[dependency.name] = null;
+		});
+		outputModules.push({
+			name: module.name,
+			dependencies: Object.keys(uniqueDependencies).sort()
+		});
+	});
+    return outputModules;
+}

@@ -1,20 +1,8 @@
-#! /usr/bin/env node
 var fs_1 = require("fs");
 var ts = require("typescript");
 var analyser = require("./ts-analyser");
 var umlBuilder = require("./uml-builder");
-function main(args) {
-    var switches = args.filter(function (a) { return a.indexOf("-") === 0; });
-    var nonSwitches = args.filter(function (a) { return a.indexOf("-") !== 0; });
-    if (nonSwitches.length < 1) {
-        console.error("Invalid number of arguments. Usage:\n" +
-            "  <switches> <sources filename/directory> <output.png>\n" +
-            "Available switches:\n" +
-            "  -dependencies: produces a modules' dependencies diagram");
-        return;
-    }
-    var targetPath = nonSwitches.length > 0 ? nonSwitches[0] : "";
-    var outputFilename = nonSwitches.length > 1 ? nonSwitches[1] : "diagram.png";
+function getModules(targetPath) {
     if (!fs_1.existsSync(targetPath)) {
         console.error("'" + targetPath + "' does not exist");
         return;
@@ -40,12 +28,27 @@ function main(args) {
         .filter(function (f) { return f.fileName.lastIndexOf(".d.ts") !== f.fileName.length - ".d.ts".length; })
         .map(function (sourceFile) { return analyser.collectInformation(program, sourceFile); });
     process.chdir(originalDir);
-    if (switches.indexOf("-dependencies") >= 0) {
-        umlBuilder.buildUml(modules, outputFilename, true);
-    }
-    else {
-        umlBuilder.buildUml(modules, outputFilename, false);
-    }
+    return modules;
+}
+function createGraph(targetPath, outputFilename, dependenciesOnly) {
+    var modules = getModules(targetPath);
+    umlBuilder.buildUml(modules, outputFilename, dependenciesOnly);
     console.log("done");
 }
-main(process.argv.slice(2));
+exports.createGraph = createGraph;
+function getModulesDependencies(targetPath) {
+    var modules = getModules(targetPath);
+    var outputModules = [];
+    modules.sort(function (a, b) { return a.name.localeCompare(b.name); }).forEach(function (module) {
+        var uniqueDependencies = {};
+        module.dependencies.forEach(function (dependency) {
+            uniqueDependencies[dependency.name] = null;
+        });
+        outputModules.push({
+            name: module.name,
+            dependencies: Object.keys(uniqueDependencies).sort()
+        });
+    });
+    return outputModules;
+}
+exports.getModulesDependencies = getModulesDependencies;

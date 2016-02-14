@@ -4,6 +4,12 @@ export enum Visibility {
     Public,
     Protected
 }
+
+export enum Lifetime {
+    Static,
+    Instance
+}
+
 let ModuleTypeName = "";
 let ClassTypeName = "";
 let MethodTypeName = "";
@@ -23,7 +29,7 @@ export class QualifiedName {
 }
 
 export abstract class Element {
-    constructor(private _name: string, private _parent: Element, private _visibility: Visibility = Visibility.Public) { }
+    constructor(private _name: string, private _parent: Element, private _visibility: Visibility = Visibility.Public, private _lifetime: Lifetime = Lifetime.Instance) { }
     
     public get name(): string {
         return this._name;
@@ -31,6 +37,10 @@ export abstract class Element {
     
     public get visibility() : Visibility {
         return this._visibility;
+    }
+    
+    public get lifetime() : Lifetime {
+        return this._lifetime;
     }
     
     public get parent() : Element {

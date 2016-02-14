@@ -1,6 +1,6 @@
 {
   "name": "tsviz",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Simple tool to create UML diagrams from typescript modules",
   "main": "bin/tsviz.js",
   "bin": {
@@ -25,6 +25,6 @@
   "homepage": "https://github.com/joaompneves/tsviz",
   "dependencies": {
     "graphviz": ">=0.0.8",
-    "typescript": ">=1.7.5"
+    "typescript": "=1.7.5"
   }
 }

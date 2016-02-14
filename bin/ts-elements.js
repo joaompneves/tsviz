@@ -9,6 +9,11 @@ var __extends = (this && this.__extends) || function (d, b) {
     Visibility[Visibility["Protected"] = 2] = "Protected";
 })(exports.Visibility || (exports.Visibility = {}));
 var Visibility = exports.Visibility;
+(function (Lifetime) {
+    Lifetime[Lifetime["Static"] = 0] = "Static";
+    Lifetime[Lifetime["Instance"] = 1] = "Instance";
+})(exports.Lifetime || (exports.Lifetime = {}));
+var Lifetime = exports.Lifetime;
 var ModuleTypeName = "";
 var ClassTypeName = "";
 var MethodTypeName = "";
@@ -29,11 +34,13 @@ var QualifiedName = (function () {
 })();
 exports.QualifiedName = QualifiedName;
 var Element = (function () {
-    function Element(_name, _parent, _visibility) {
+    function Element(_name, _parent, _visibility, _lifetime) {
         if (_visibility === void 0) { _visibility = Visibility.Public; }
+        if (_lifetime === void 0) { _lifetime = Lifetime.Instance; }
         this._name = _name;
         this._parent = _parent;
         this._visibility = _visibility;
+        this._lifetime = _lifetime;
     }
     Object.defineProperty(Element.prototype, "name", {
         get: function () {
@@ -45,6 +52,13 @@ var Element = (function () {
     Object.defineProperty(Element.prototype, "visibility", {
         get: function () {
             return this._visibility;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Element.prototype, "lifetime", {
+        get: function () {
+            return this._lifetime;
         },
         enumerable: true,
         configurable: true

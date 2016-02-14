@@ -1,7 +1,7 @@
 /// <reference path="typings/graphviz/graphviz.d.ts"/>
 
 import * as graphviz from "graphviz";
-import { Element, Module, Class, Method, Property, Visibility, QualifiedName } from "./ts-elements";
+import { Element, Module, Class, Method, Property, Visibility, QualifiedName, Lifetime } from "./ts-elements";
 import { Collections } from "./extensions";
 
 export function buildUml(modules: Module[], outputFilename: string, dependenciesOnly: boolean) {
@@ -100,17 +100,23 @@ function combineSignatures<T extends Element>(elements: T[], map: (e: T) => stri
 }
 
 function getMethodSignature(method: Method): string {
-    return visibilityToString(method.visibility) + " " + method.name + "()";
+    return [ 
+        visibilityToString(method.visibility),
+        lifetimeToString(method.lifetime),
+        getName(method) + "()"
+    ].join(" ");
 }
 
 function getPropertySignature(property: Property): string {
-    return visibilityToString(property.visibility) + 
-        " " + 
-        (property.hasGetter ? "get" : "") + 
-        (property.hasGetter && property.hasSetter ? "/" : "") + 
-        (property.hasSetter ? "set" : "") + 
-        " " + 
-        property.name;
+    return [
+        visibilityToString(property.visibility),
+        lifetimeToString(property.lifetime),
+        [ 
+            (property.hasGetter ? "get" : null),
+            (property.hasSetter ? "set" : null)
+        ].filter(v => v !== null).join("/"),
+        getName(property)
+    ].join(" ");
 }
 
 function visibilityToString(visibility: Visibility) {
@@ -122,6 +128,14 @@ function visibilityToString(visibility: Visibility) {
         case Visibility.Private:
             return "-";        
     }
+}
+
+function lifetimeToString(lifetime: Lifetime) {
+    return lifetime === Lifetime.Static ? "\\<static\\>" : "";
+}
+
+function getName(element: Element) {
+    return element.name;
 }
 
 function getGraphNodeId(path: string, name: string): string {

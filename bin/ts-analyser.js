@@ -36,13 +36,15 @@ function collectInformation(program, sourceFile) {
                 break;
             case 145:
             case 146:
+            case 141:
                 var propertyDeclaration = node;
-                var property = new ts_elements_1.Property(propertyDeclaration.name.text, currentElement, getVisibility(node));
-                if (node.kind === 145) {
-                    property.hasGetter = true;
-                }
-                else {
-                    property.hasSetter = true;
+                var property = new ts_elements_1.Property(propertyDeclaration.name.text, currentElement, getVisibility(node), getLifetime(node));
+                switch (node.kind) {
+                    case 145:
+                        property.hasGetter = true;
+                        break;
+                    case 146:
+                        property.hasSetter = true;
                 }
                 childElement = property;
                 skipChildren = true;
@@ -50,7 +52,7 @@ function collectInformation(program, sourceFile) {
             case 143:
             case 213:
                 var functionDeclaration = node;
-                childElement = new ts_elements_1.Method(functionDeclaration.name.text, currentElement, getVisibility(node));
+                childElement = new ts_elements_1.Method(functionDeclaration.name.text, currentElement, getVisibility(node), getLifetime(node));
                 skipChildren = true;
                 break;
         }
@@ -84,14 +86,17 @@ function collectInformation(program, sourceFile) {
     }
     function getVisibility(node) {
         if (node.modifiers) {
-            switch (node.modifiers.flags) {
-                case 64:
-                    return ts_elements_1.Visibility.Protected;
-                case 32:
-                    return ts_elements_1.Visibility.Private;
-                case 16:
-                case 1:
-                    return ts_elements_1.Visibility.Public;
+            if (hasModifierSet(node.modifiers.flags, 64)) {
+                return ts_elements_1.Visibility.Protected;
+            }
+            else if (hasModifierSet(node.modifiers.flags, 32)) {
+                return ts_elements_1.Visibility.Private;
+            }
+            else if (hasModifierSet(node.modifiers.flags, 16)) {
+                return ts_elements_1.Visibility.Public;
+            }
+            else if (hasModifierSet(node.modifiers.flags, 1)) {
+                return ts_elements_1.Visibility.Public;
             }
         }
         switch (node.parent.kind) {
@@ -101,6 +106,17 @@ function collectInformation(program, sourceFile) {
                 return ts_elements_1.Visibility.Private;
         }
         return ts_elements_1.Visibility.Private;
+    }
+    function getLifetime(node) {
+        if (node.modifiers) {
+            if (hasModifierSet(node.modifiers.flags, 128)) {
+                return ts_elements_1.Lifetime.Static;
+            }
+        }
+        return ts_elements_1.Lifetime.Instance;
+    }
+    function hasModifierSet(value, modifier) {
+        return (value & modifier) === modifier;
     }
     return module;
 }

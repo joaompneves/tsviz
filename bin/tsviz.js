@@ -33,7 +33,6 @@ function getModules(targetPath) {
 function createGraph(targetPath, outputFilename, dependenciesOnly) {
     var modules = getModules(targetPath);
     umlBuilder.buildUml(modules, outputFilename, dependenciesOnly);
-    console.log("done");
 }
 exports.createGraph = createGraph;
 function getModulesDependencies(targetPath) {

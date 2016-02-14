@@ -1,6 +1,6 @@
 import * as ts from "typescript";
 import * as path from "path";
-import { Element, Module, Class, Method, ImportedModule, Property, Visibility, QualifiedName } from "./ts-elements";
+import { Element, Module, Class, Method, ImportedModule, Property, Visibility, QualifiedName, Lifetime } from "./ts-elements";
 import { Collections } from "./extensions";
 
 export function collectInformation(program: ts.Program, sourceFile: ts.SourceFile): Module {
@@ -45,12 +45,15 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
             
             case ts.SyntaxKind.GetAccessor:
             case ts.SyntaxKind.SetAccessor:
+            case ts.SyntaxKind.PropertyDeclaration:
                 let propertyDeclaration = <ts.PropertyDeclaration> node;
-                let property = new Property((<ts.Identifier>propertyDeclaration.name).text, currentElement, getVisibility(node));
-                if (node.kind === ts.SyntaxKind.GetAccessor) {
-                    property.hasGetter = true;
-                } else {
-                    property.hasSetter = true;
+                let property = new Property((<ts.Identifier>propertyDeclaration.name).text, currentElement, getVisibility(node), getLifetime(node));
+                switch (node.kind) {
+                    case ts.SyntaxKind.GetAccessor:
+                        property.hasGetter = true;
+                        break;
+                    case ts.SyntaxKind.SetAccessor:
+                        property.hasSetter = true;
                 }
                 childElement = property;
                 skipChildren = true;
@@ -59,9 +62,10 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
             case ts.SyntaxKind.MethodDeclaration:
             case ts.SyntaxKind.FunctionDeclaration:
                 let functionDeclaration = <ts.Declaration> node;
-                childElement = new Method((<ts.Identifier>functionDeclaration.name).text, currentElement, getVisibility(node));
+                childElement = new Method((<ts.Identifier>functionDeclaration.name).text, currentElement, getVisibility(node), getLifetime(node));
                 skipChildren = true;
                 break;
+                
         }
         
         if (childElement) {
@@ -100,14 +104,14 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
     
     function getVisibility(node: ts.Node) {
         if (node.modifiers) {
-            switch (node.modifiers.flags) {
-                case ts.NodeFlags.Protected:
-                    return Visibility.Protected;
-                case ts.NodeFlags.Private:
-                    return Visibility.Private;
-                case ts.NodeFlags.Public:
-                case ts.NodeFlags.Export:
-                    return Visibility.Public
+            if (hasModifierSet(node.modifiers.flags, ts.NodeFlags.Protected)) {
+                return Visibility.Protected;
+            } else if (hasModifierSet(node.modifiers.flags, ts.NodeFlags.Private)) {
+                return Visibility.Private;
+            } else if (hasModifierSet(node.modifiers.flags, ts.NodeFlags.Public)) {
+                return Visibility.Public;
+            } else if (hasModifierSet(node.modifiers.flags, ts.NodeFlags.Export)) {
+                return Visibility.Public;
             }
         }
         switch (node.parent.kind) {
@@ -117,6 +121,19 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
                 return Visibility.Private;
         }
         return Visibility.Private;
+    }
+    
+    function getLifetime(node: ts.Node) {
+        if (node.modifiers) {
+            if (hasModifierSet(node.modifiers.flags, ts.NodeFlags.Static)) {
+                return Lifetime.Static;
+            }
+        }
+        return Lifetime.Instance;
+    }
+    
+    function hasModifierSet(value: number, modifier: number) {
+        return (value & modifier) === modifier;
     }
 
     return module;

@@ -50,7 +50,6 @@ function getModules(targetPath: string) {
 export function createGraph(targetPath: string, outputFilename: string, dependenciesOnly: boolean) {
     let modules = getModules(targetPath);
     umlBuilder.buildUml(modules, outputFilename, dependenciesOnly);
-    console.log("done");
 }
 
 export function getModulesDependencies(targetPath: string): OutputModule[] {

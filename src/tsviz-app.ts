@@ -1,5 +1,3 @@
-#! /usr/bin/env node
-
 import * as tsviz from "./tsviz"; 
 
 function main(args: string[]) {
@@ -23,4 +21,6 @@ function main(args: string[]) {
     console.log("done");
 }
 
-main(process.argv.slice(2));
+export function run() {
+    main(process.argv.slice(2));
+}

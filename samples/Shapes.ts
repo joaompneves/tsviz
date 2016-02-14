@@ -21,4 +21,5 @@ export class Circle extends Shape {
 	public draw() { }
 	public get radius(): number { return 0; }
 	public set radius(r: number) { }
+    public static PI: number;
 }

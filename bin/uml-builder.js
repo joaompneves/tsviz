@@ -73,16 +73,22 @@ function combineSignatures(elements, map) {
         .join("");
 }
 function getMethodSignature(method) {
-    return visibilityToString(method.visibility) + " " + method.name + "()";
+    return [
+        visibilityToString(method.visibility),
+        lifetimeToString(method.lifetime),
+        getName(method) + "()"
+    ].join(" ");
 }
 function getPropertySignature(property) {
-    return visibilityToString(property.visibility) +
-        " " +
-        (property.hasGetter ? "get" : "") +
-        (property.hasGetter && property.hasSetter ? "/" : "") +
-        (property.hasSetter ? "set" : "") +
-        " " +
-        property.name;
+    return [
+        visibilityToString(property.visibility),
+        lifetimeToString(property.lifetime),
+        [
+            (property.hasGetter ? "get" : null),
+            (property.hasSetter ? "set" : null)
+        ].filter(function (v) { return v !== null; }).join("/"),
+        getName(property)
+    ].join(" ");
 }
 function visibilityToString(visibility) {
     switch (visibility) {
@@ -93,6 +99,12 @@ function visibilityToString(visibility) {
         case ts_elements_1.Visibility.Private:
             return "-";
     }
+}
+function lifetimeToString(lifetime) {
+    return lifetime === ts_elements_1.Lifetime.Static ? "\\<static\\>" : "";
+}
+function getName(element) {
+    return element.name;
 }
 function getGraphNodeId(path, name) {
     return ((path ? path + "÷" : "") + name).replace(/\//g, "|");

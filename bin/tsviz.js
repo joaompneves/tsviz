@@ -1,3 +1,4 @@
+"use strict";
 var fs_1 = require("fs");
 var ts = require("typescript");
 var analyser = require("./ts-analyser");

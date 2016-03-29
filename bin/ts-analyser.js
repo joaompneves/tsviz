@@ -1,3 +1,4 @@
+"use strict";
 var ts = require("typescript");
 var path = require("path");
 var ts_elements_1 = require("./ts-elements");
@@ -17,6 +18,10 @@ function collectInformation(program, sourceFile) {
             case 218:
                 var moduleDeclaration = node;
                 childElement = new ts_elements_1.Module(moduleDeclaration.name.text, currentElement, getVisibility(node));
+                break;
+            case 221:
+                var importEqualDeclaration = node;
+                childElement = new ts_elements_1.ImportedModule(importEqualDeclaration.name.text, currentElement);
                 break;
             case 222:
                 var importDeclaration = node;

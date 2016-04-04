@@ -24,6 +24,11 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
                 let moduleDeclaration = <ts.ModuleDeclaration> node;
                 childElement = new Module(moduleDeclaration.name.text, currentElement, getVisibility(node));
                 break;
+
+            case ts.SyntaxKind.ImportEqualsDeclaration:
+                let importEqualDeclaration = (<ts.ImportEqualsDeclaration> node);
+                childElement = new ImportedModule(importEqualDeclaration.name.text, currentElement);
+                break;
                 
             case ts.SyntaxKind.ImportDeclaration:
                 let importDeclaration = (<ts.ImportDeclaration> node);

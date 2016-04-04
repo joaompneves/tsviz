@@ -1,3 +1,4 @@
+"use strict";
 var graphviz = require("graphviz");
 var ts_elements_1 = require("./ts-elements");
 var extensions_1 = require("./extensions");

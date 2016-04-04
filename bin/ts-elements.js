@@ -1,3 +1,4 @@
+"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -31,7 +32,7 @@ var QualifiedName = (function () {
         configurable: true
     });
     return QualifiedName;
-})();
+}());
 exports.QualifiedName = QualifiedName;
 var Element = (function () {
     function Element(_name, _parent, _visibility, _lifetime) {
@@ -77,7 +78,7 @@ var Element = (function () {
         throw new Error(typeof element + " not supported in " + typeof this);
     };
     return Element;
-})();
+}());
 exports.Element = Element;
 var Module = (function (_super) {
     __extends(Module, _super);
@@ -140,7 +141,7 @@ var Module = (function (_super) {
         return _super.prototype.getElementCollection.call(this, element);
     };
     return Module;
-})(Element);
+}(Element));
 exports.Module = Module;
 var Class = (function (_super) {
     __extends(Class, _super);
@@ -200,7 +201,7 @@ var Class = (function (_super) {
         configurable: true
     });
     return Class;
-})(Element);
+}(Element));
 exports.Class = Class;
 var Method = (function (_super) {
     __extends(Method, _super);
@@ -208,7 +209,7 @@ var Method = (function (_super) {
         _super.apply(this, arguments);
     }
     return Method;
-})(Element);
+}(Element));
 exports.Method = Method;
 var ImportedModule = (function (_super) {
     __extends(ImportedModule, _super);
@@ -216,7 +217,7 @@ var ImportedModule = (function (_super) {
         _super.apply(this, arguments);
     }
     return ImportedModule;
-})(Element);
+}(Element));
 exports.ImportedModule = ImportedModule;
 var Property = (function (_super) {
     __extends(Property, _super);
@@ -244,7 +245,7 @@ var Property = (function (_super) {
         configurable: true
     });
     return Property;
-})(Element);
+}(Element));
 exports.Property = Property;
 function typeName(_class) {
     return _class.prototype.constructor.name;

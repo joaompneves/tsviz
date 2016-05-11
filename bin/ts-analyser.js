@@ -15,20 +15,20 @@ function collectInformation(program, sourceFile) {
         var childElement;
         var skipChildren = false;
         switch (node.kind) {
-            case 218:
+            case 221:
                 var moduleDeclaration = node;
                 childElement = new ts_elements_1.Module(moduleDeclaration.name.text, currentElement, getVisibility(node));
                 break;
-            case 221:
+            case 224:
                 var importEqualDeclaration = node;
                 childElement = new ts_elements_1.ImportedModule(importEqualDeclaration.name.text, currentElement);
                 break;
-            case 222:
+            case 225:
                 var importDeclaration = node;
                 var moduleName_1 = importDeclaration.moduleSpecifier.text;
                 childElement = new ts_elements_1.ImportedModule(moduleName_1, currentElement);
                 break;
-            case 214:
+            case 217:
                 var classDeclaration = node;
                 var classDef = new ts_elements_1.Class(classDeclaration.name.text, currentElement, getVisibility(node));
                 if (classDeclaration.heritageClauses) {
@@ -39,23 +39,23 @@ function collectInformation(program, sourceFile) {
                 }
                 childElement = classDef;
                 break;
-            case 145:
             case 146:
-            case 141:
+            case 147:
+            case 142:
                 var propertyDeclaration = node;
                 var property = new ts_elements_1.Property(propertyDeclaration.name.text, currentElement, getVisibility(node), getLifetime(node));
                 switch (node.kind) {
-                    case 145:
+                    case 146:
                         property.hasGetter = true;
                         break;
-                    case 146:
+                    case 147:
                         property.hasSetter = true;
                 }
                 childElement = property;
                 skipChildren = true;
                 break;
-            case 143:
-            case 213:
+            case 144:
+            case 216:
                 var functionDeclaration = node;
                 childElement = new ts_elements_1.Method(functionDeclaration.name.text, currentElement, getVisibility(node), getLifetime(node));
                 skipChildren = true;
@@ -73,7 +73,7 @@ function collectInformation(program, sourceFile) {
         var symbol = typeChecker.getSymbolAtLocation(expression.expression);
         if (symbol) {
             var nameParts = typeChecker.getFullyQualifiedName(symbol).split(".");
-            if (symbol.declarations.length > 0 && symbol.declarations[0].kind === 226) {
+            if (symbol.declarations.length > 0 && symbol.declarations[0].kind === 229) {
                 var importSpecifier = symbol.declarations[0];
                 var moduleName_2 = importSpecifier.parent.parent.parent.moduleSpecifier.text;
                 nameParts.unshift(moduleName_2);
@@ -105,9 +105,9 @@ function collectInformation(program, sourceFile) {
             }
         }
         switch (node.parent.kind) {
-            case 214:
+            case 217:
                 return ts_elements_1.Visibility.Public;
-            case 218:
+            case 221:
                 return ts_elements_1.Visibility.Private;
         }
         return ts_elements_1.Visibility.Private;

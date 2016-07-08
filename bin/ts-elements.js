@@ -85,6 +85,7 @@ var Module = (function (_super) {
     function Module() {
         _super.apply(this, arguments);
         this._classes = new Array();
+        this._properties = {};
         this._modules = new Array();
         this._dependencies = new Array();
         this._methods = new Array();
@@ -92,6 +93,18 @@ var Module = (function (_super) {
     Object.defineProperty(Module.prototype, "classes", {
         get: function () {
             return this._classes;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Module.prototype, "properties", {
+        get: function () {
+            var result = new Array();
+            for (var _i = 0, _a = Object.keys(this._properties); _i < _a.length; _i++) {
+                var prop = _a[_i];
+                result.push(this._properties[prop]);
+            }
+            return result;
         },
         enumerable: true,
         configurable: true
@@ -137,6 +150,8 @@ var Module = (function (_super) {
                 return this.dependencies;
             case MethodTypeName:
                 return this.methods;
+            case PropertyTypeName:
+                return this.properties;
         }
         return _super.prototype.getElementCollection.call(this, element);
     };

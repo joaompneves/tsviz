@@ -43,7 +43,7 @@ function buildModule(module: Module, g: graphviz.Graph, path: string, level: num
     const ModulePrefix = "cluster_";
     
     let moduleId = getGraphNodeId(path, module.name);
-    let cluster = g.addCluster(ModulePrefix + moduleId);
+    let cluster = g.addCluster("\"" + ModulePrefix + moduleId + "\"");
     
     cluster.set("label", (module.visibility !== Visibility.Public ? visibilityToString(module.visibility) + " " : "") + module.name);
     cluster.set("style", "filled");

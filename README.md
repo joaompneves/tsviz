@@ -21,3 +21,5 @@ $ tsviz samples/ diagram.png
 ### Arguments
 * `-dependencies`
   Produces a diagram with the dependencies between modules.
+* `-recursive`
+  Include files (typescript modules) in subdirectories (must be non-cyclic).

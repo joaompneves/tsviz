@@ -9,7 +9,8 @@ function main(args: string[]) {
             "Invalid number of arguments. Usage:\n" + 
             "  <switches> <sources filename/directory> <output.png>\n" +
             "Available switches:\n" +
-            "  -dependencies: produces the modules' dependencies diagram");
+            "  -dependencies: produces the modules' dependencies diagram\n" + 
+            "  -r, recursive: include files in subdirectories (must be non-cyclic)");
         return;
     }
     
@@ -17,7 +18,8 @@ function main(args: string[]) {
     let outputFilename = nonSwitches.length > 1 ? nonSwitches[1] : "diagram.png";
 
     let dependenciesOnly = switches.indexOf("-dependencies") >= 0; // dependencies or uml?
-    tsviz.createGraph(targetPath, outputFilename, dependenciesOnly);
+    let recursive = switches.indexOf("-r") >= 0 || switches.indexOf("-recursive") >= 0;
+    tsviz.createGraph(targetPath, outputFilename, dependenciesOnly, recursive);
     console.log("done");
 }
 

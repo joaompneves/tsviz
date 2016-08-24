@@ -9,15 +9,19 @@ function main(args: string[]) {
             "Invalid number of arguments. Usage:\n" + 
             "  <switches> <sources filename/directory> <output.png>\n" +
             "Available switches:\n" +
-            "  -dependencies: produces the modules' dependencies diagram");
+            "  -d, dependencies: produces the modules' dependencies diagram\n" + 
+            "  -r, recursive: include files in subdirectories (must be non-cyclic)");
         return;
     }
     
     let targetPath = nonSwitches.length > 0 ? nonSwitches[0] : "";
     let outputFilename = nonSwitches.length > 1 ? nonSwitches[1] : "diagram.png";
 
-    let dependenciesOnly = switches.indexOf("-dependencies") >= 0; // dependencies or uml?
-    tsviz.createGraph(targetPath, outputFilename, dependenciesOnly);
+    let dependenciesOnly = switches.indexOf("-d") >= 0 || switches.indexOf("-dependencies") >= 0; // dependencies or uml?
+    let recursive = switches.indexOf("-r") >= 0 || switches.indexOf("-recursive") >= 0;
+
+    tsviz.createGraph(targetPath, outputFilename, dependenciesOnly, recursive);
+
     console.log("Done");
 }
 

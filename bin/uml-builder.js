@@ -33,7 +33,7 @@ exports.buildUml = buildUml;
 function buildModule(module, g, path, level, dependenciesOnly) {
     var ModulePrefix = "cluster_";
     var moduleId = getGraphNodeId(path, module.name);
-    var cluster = g.addCluster(ModulePrefix + moduleId);
+    var cluster = g.addCluster("\"" + ModulePrefix + moduleId + "\"");
     cluster.set("label", (module.visibility !== ts_elements_1.Visibility.Public ? visibilityToString(module.visibility) + " " : "") + module.name);
     cluster.set("style", "filled");
     cluster.set("color", "gray" + Math.max(40, (95 - (level * 6))));

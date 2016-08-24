@@ -11,10 +11,10 @@ export interface OutputModule {
 	dependencies: string[];
 }
 
-function getModules(targetPath: string) {
+function getModules(targetPath: string): Module[] {
     if (!existsSync(targetPath)) {
         console.error("'" + targetPath + "' does not exist");
-        return;
+        return [];
     }
     
     let fileNames: string[];
@@ -44,6 +44,8 @@ function getModules(targetPath: string) {
     
     process.chdir(originalDir); // go back to the original dir
     
+    console.log("Found " + modules.length + " module(s)");
+
     return modules;
 }
 

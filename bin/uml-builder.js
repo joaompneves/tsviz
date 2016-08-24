@@ -16,7 +16,7 @@ function buildUml(modules, outputFilename, dependenciesOnly) {
     g.setNodeAttribut(FontNameKey, FontName);
     g.setNodeAttribut("shape", "record");
     modules.forEach(function (module) {
-        buildModule(module, g, "", 0, dependenciesOnly);
+        buildModule(module, g, module.path, 0, dependenciesOnly);
     });
     if (process.platform === "win32") {
         var pathVariable = process.env["PATH"];
@@ -108,5 +108,6 @@ function getName(element) {
     return element.name;
 }
 function getGraphNodeId(path, name) {
-    return ((path ? path + "÷" : "") + name).replace(/\//g, "|");
+    var result = ((path ? path + "/" : "") + name).replace(/\//g, "|");
+    return result;
 }

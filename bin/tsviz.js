@@ -6,7 +6,7 @@ var umlBuilder = require("./uml-builder");
 function getModules(targetPath) {
     if (!fs_1.existsSync(targetPath)) {
         console.error("'" + targetPath + "' does not exist");
-        return;
+        return [];
     }
     var fileNames;
     var originalDir = process.cwd();
@@ -29,6 +29,7 @@ function getModules(targetPath) {
         .filter(function (f) { return f.fileName.lastIndexOf(".d.ts") !== f.fileName.length - ".d.ts".length; })
         .map(function (sourceFile) { return analyser.collectInformation(program, sourceFile); });
     process.chdir(originalDir);
+    console.log("Found " + modules.length + " module(s)");
     return modules;
 }
 function createGraph(targetPath, outputFilename, dependenciesOnly) {

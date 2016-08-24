@@ -14,7 +14,7 @@ function main(args) {
     var outputFilename = nonSwitches.length > 1 ? nonSwitches[1] : "diagram.png";
     var dependenciesOnly = switches.indexOf("-dependencies") >= 0;
     tsviz.createGraph(targetPath, outputFilename, dependenciesOnly);
-    console.log("done");
+    console.log("Done");
 }
 function run() {
     main(process.argv.slice(2));

@@ -22,7 +22,7 @@ export function buildUml(modules: Module[], outputFilename: string, dependencies
     g.setNodeAttribut("shape", "record");
     
     modules.forEach(module => {
-        buildModule(module, g, "", 0, dependenciesOnly);
+        buildModule(module, g, module.path, 0, dependenciesOnly);
     });
     
     if (process.platform === "win32") {
@@ -139,5 +139,6 @@ function getName(element: Element) {
 }
 
 function getGraphNodeId(path: string, name: string): string {
-    return ((path ? path + "÷" : "") + name).replace(/\//g, "|");
+    let result = ((path ? path + "/" : "") + name).replace(/\//g, "|");
+    return result;
 }

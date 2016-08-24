@@ -18,7 +18,7 @@ function main(args: string[]) {
 
     let dependenciesOnly = switches.indexOf("-dependencies") >= 0; // dependencies or uml?
     tsviz.createGraph(targetPath, outputFilename, dependenciesOnly);
-    console.log("done");
+    console.log("Done");
 }
 
 export function run() {

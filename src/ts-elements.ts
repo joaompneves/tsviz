@@ -58,6 +58,7 @@ export abstract class Element {
 
 export class Module extends Element {
     private _classes: Class[] = new Array<Class>();
+    private _properties : { [name: string ] : Property } = {};
     private _modules: Module[] = new Array<Module>();
     private _dependencies: ImportedModule[] = new Array<ImportedModule>();
     private _methods = new Array<Method>();
@@ -67,6 +68,14 @@ export class Module extends Element {
         return this._classes;
     }
     
+    public get properties(): Array<Property> {
+        var result = new Array<Property>();
+        for (let prop of Object.keys(this._properties)) {
+            result.push(this._properties[prop]);
+        }
+        return result;
+    }
+
     public get modules(): Array<Module> {
         return this._modules;
     }
@@ -97,6 +106,8 @@ export class Module extends Element {
                 return this.dependencies;
             case MethodTypeName:
                 return this.methods;
+            case PropertyTypeName:
+                return this.properties;
         }
         return super.getElementCollection(element);
     }

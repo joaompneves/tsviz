@@ -78,9 +78,9 @@ function getModules(targetPath: string, recursive: boolean): Module[] {
     return modules;
 }
 
-export function createGraph(targetPath: string, outputFilename: string, dependenciesOnly: boolean, recursive: boolean) {
+export function createGraph(targetPath: string, outputFilename: string, dependenciesOnly: boolean, recursive: boolean, svgOutput: boolean) {
     let modules = getModules(targetPath, recursive);
-    umlBuilder.buildUml(modules, outputFilename, dependenciesOnly);
+    umlBuilder.buildUml(modules, outputFilename, dependenciesOnly, svgOutput);
 }
 
 export function getModulesDependencies(targetPath: string, recursive: boolean): OutputModule[] {

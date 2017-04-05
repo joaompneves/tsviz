@@ -1,8 +1,9 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var graphviz = require("graphviz");
 var ts_elements_1 = require("./ts-elements");
 var extensions_1 = require("./extensions");
-function buildUml(modules, outputFilename, dependenciesOnly) {
+function buildUml(modules, outputFilename, dependenciesOnly, svgOutput) {
     var g = graphviz.digraph("G");
     var FontSizeKey = "fontsize";
     var FontSize = 12;
@@ -27,7 +28,7 @@ function buildUml(modules, outputFilename, dependenciesOnly) {
     else {
         g.setGraphVizPath("/usr/local/bin");
     }
-    g.output("png", outputFilename);
+    g.output(svgOutput ? "svg" : "png", outputFilename);
 }
 exports.buildUml = buildUml;
 function buildModule(module, g, path, level, dependenciesOnly) {

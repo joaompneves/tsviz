@@ -4,7 +4,7 @@ import * as graphviz from "graphviz";
 import { Element, Module, Class, Method, Property, Visibility, QualifiedName, Lifetime } from "./ts-elements";
 import { Collections } from "./extensions";
 
-export function buildUml(modules: Module[], outputFilename: string, dependenciesOnly: boolean) {
+export function buildUml(modules: Module[], outputFilename: string, dependenciesOnly: boolean, svgOutput: boolean) {
     let g: graphviz.Graph = graphviz.digraph("G");
 
     const FontSizeKey = "fontsize";
@@ -35,8 +35,8 @@ export function buildUml(modules: Module[], outputFilename: string, dependencies
         g.setGraphVizPath("/usr/local/bin");
     }
     
-    // Generate a PNG output
-    g.output("png", outputFilename);
+    // Generate a PNG/SVG output
+    g.output(svgOutput ? "svg" : "png", outputFilename);
 }
 
 function buildModule(module: Module, g: graphviz.Graph, path: string, level: number, dependenciesOnly: boolean) {

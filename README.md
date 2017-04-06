@@ -23,3 +23,5 @@ $ tsviz samples/ diagram.png
   Produces a diagram with the dependencies between modules.
 * `-recursive`
   Include files (typescript modules) in subdirectories (must be non-cyclic).
+* `-svg`
+  Prduces a SVG output file.

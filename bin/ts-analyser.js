@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var ts = require("typescript");
 var path = require("path");
 var ts_elements_1 = require("./ts-elements");

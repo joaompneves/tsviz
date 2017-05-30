@@ -8,11 +8,11 @@
 ```bash
 $ npm install -g tsviz
 ```
-You also need to install [GraphViz](http://www.graphviz.org/Download.php)
+You also need to install [GraphViz](http://www.graphviz.org/Download.php), including correctly added it to your OS' PATH.
 
 ## Usage
 
-In order to create a diagram for an entire project you simply type: 
+In order to create a diagram for an entire project you simply type:
 
 ```bash
 $ tsviz samples/ diagram.png

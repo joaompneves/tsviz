@@ -26,5 +26,8 @@
   "dependencies": {
     "graphviz": ">=0.0.8",
     "typescript": "=1.8.10"
-  }
+  },
+  "contributors": [
+    "Tom Davidson <tom@tomdavidson.org> (http://tomdavidson.org)"
+  ]
 }

@@ -25,9 +25,6 @@ function buildUml(modules, outputFilename, dependenciesOnly, svgOutput) {
             console.warn("Could not find Graphviz in PATH.");
         }
     }
-    else {
-        g.setGraphVizPath("/usr/local/bin");
-    }
     g.output(svgOutput ? "svg" : "png", outputFilename);
 }
 exports.buildUml = buildUml;

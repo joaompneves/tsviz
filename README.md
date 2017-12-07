@@ -8,7 +8,7 @@ This simple tool creates a UML diagram from typescript modules.
 ```bash
 npm install -g tsviz
 ```
-You also need to install [GraphViz](http://www.graphviz.org/Download.php), including correctly added it to your OS' PATH.
+You also need to install [GraphViz](http://www.graphviz.org/download/), including correctly added it to your PATH.
 
 ## Usage
 

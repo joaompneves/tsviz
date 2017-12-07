@@ -1,12 +1,12 @@
 # tsviz
-> This simple tool creates a UML diagram from typescript modules.
+This simple tool creates a UML diagram from typescript modules.
 
-![alt tag](https://raw.githubusercontent.com/joaompneves/tsviz/master/samples/diagram.png)
+![diagram](https://raw.githubusercontent.com/joaompneves/tsviz/master/samples/diagram.png)
 
 ## Installation
 
 ```bash
-$ npm install -g tsviz
+npm install -g tsviz
 ```
 You also need to install [GraphViz](http://www.graphviz.org/Download.php), including correctly added it to your OS' PATH.
 
@@ -15,7 +15,7 @@ You also need to install [GraphViz](http://www.graphviz.org/Download.php), inclu
 In order to create a diagram for an entire project you simply type:
 
 ```bash
-$ tsviz samples/ diagram.png
+tsviz samples/ diagram.png
 ```
 
 ### Arguments

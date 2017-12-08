@@ -1,7 +1,7 @@
 # tsviz
 This simple tool creates a UML diagram from typescript modules.
 
-![diagram](https://raw.githubusercontent.com/joaompneves/tsviz/master/samples/diagram.png)
+![diagram](samples/diagram.png)
 
 ## Installation
 

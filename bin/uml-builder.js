@@ -3,7 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var graphviz = require("graphviz");
 var ts_elements_1 = require("./ts-elements");
 var extensions_1 = require("./extensions");
-function buildUml(modules, outputFilename, dependenciesOnly, svgOutput) {
+var fs = require("fs");
+function buildUml(modules, outputFilename, dependenciesOnly) {
     var g = graphviz.digraph("G");
     var FontSizeKey = "fontsize";
     var FontSize = 12;
@@ -25,7 +26,21 @@ function buildUml(modules, outputFilename, dependenciesOnly, svgOutput) {
             console.warn("Could not find Graphviz in PATH.");
         }
     }
-    g.output(svgOutput ? "svg" : "png", outputFilename);
+    var configFile = process.cwd() + "/tsviz-config.json";
+    var config = { type: "png" };
+    if (fs.existsSync(configFile)) {
+        console.info('using config file:+', configFile);
+        config = JSON.parse(fs.readFileSync(configFile).toString());
+    }
+    if (dependenciesOnly) {
+        if (!config.G) {
+            config.G = {};
+        }
+        if (!config.G.rankdir) {
+            config.G.rankdir = "LR";
+        }
+    }
+    g.output(config, outputFilename);
 }
 exports.buildUml = buildUml;
 function buildModule(module, g, path, level, dependenciesOnly) {

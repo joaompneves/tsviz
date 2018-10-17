@@ -17,8 +17,7 @@ function main(args) {
     var outputFilename = nonSwitches.length > 1 ? nonSwitches[1] : "diagram.png";
     var dependenciesOnly = switches.indexOf("-d") >= 0 || switches.indexOf("-dependencies") >= 0;
     var recursive = switches.indexOf("-r") >= 0 || switches.indexOf("-recursive") >= 0;
-    var svgOutput = switches.indexOf("-svg") >= 0;
-    tsviz.createGraph(targetPath, outputFilename, dependenciesOnly, recursive, svgOutput);
+    tsviz.createGraph(targetPath, outputFilename, dependenciesOnly, recursive);
     console.log("Done");
 }
 function run() {

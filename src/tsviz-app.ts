@@ -20,9 +20,8 @@ function main(args: string[]) {
 
     let dependenciesOnly = switches.indexOf("-d") >= 0 || switches.indexOf("-dependencies") >= 0; // dependencies or uml?
     let recursive = switches.indexOf("-r") >= 0 || switches.indexOf("-recursive") >= 0;
-    let svgOutput = switches.indexOf("-svg") >= 0;
 
-    tsviz.createGraph(targetPath, outputFilename, dependenciesOnly, recursive, svgOutput);
+    tsviz.createGraph(targetPath, outputFilename, dependenciesOnly, recursive);
 
     console.log("Done");
 }

@@ -60,9 +60,9 @@ function getModules(targetPath, recursive) {
     console.log("Found " + modules.length + " module(s)");
     return modules;
 }
-function createGraph(targetPath, outputFilename, dependenciesOnly, recursive, svgOutput) {
+function createGraph(targetPath, outputFilename, dependenciesOnly, recursive) {
     var modules = getModules(targetPath, recursive);
-    umlBuilder.buildUml(modules, outputFilename, dependenciesOnly, svgOutput);
+    umlBuilder.buildUml(modules, outputFilename, dependenciesOnly);
 }
 exports.createGraph = createGraph;
 function getModulesDependencies(targetPath, recursive) {

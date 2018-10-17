@@ -3,8 +3,10 @@
 import * as graphviz from "graphviz";
 import { Element, Module, Class, Method, Property, Visibility, QualifiedName, Lifetime } from "./ts-elements";
 import { Collections } from "./extensions";
+import { RenderOptions } from "graphviz";
+const fs = require("fs");
 
-export function buildUml(modules: Module[], outputFilename: string, dependenciesOnly: boolean, svgOutput: boolean) {
+export function buildUml(modules: Module[], outputFilename: string, dependenciesOnly: boolean) {
     let g: graphviz.Graph = graphviz.digraph("G");
 
     const FontSizeKey = "fontsize";
@@ -32,8 +34,24 @@ export function buildUml(modules: Module[], outputFilename: string, dependencies
         }
     }
 
+    const configFile = process.cwd() +  "/tsviz-config.json";
+    let config = <RenderOptions>{type:"png"};
+    if(fs.existsSync(configFile)) {
+        console.info('using config file:+', configFile);
+        config = JSON.parse(fs.readFileSync(configFile).toString());
+    }
+
+    if (dependenciesOnly) {
+        if(!config.G) {
+            config.G = {};
+        }
+        if (!config.G.rankdir){
+            config.G.rankdir = "LR";
+        }
+    }
+
     // Generate a PNG/SVG output
-    g.output(svgOutput ? "svg" : "png", outputFilename);
+    g.output(config, outputFilename);
 }
 
 function buildModule(module: Module, g: graphviz.Graph, path: string, level: number, dependenciesOnly: boolean) {

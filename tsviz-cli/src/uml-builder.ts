@@ -1,24 +1,22 @@
-/// <reference path="typings/graphviz/graphviz.d.ts"/>
-
 import * as graphviz from "graphviz";
-import { Element, Module, Class, Method, Property, Visibility, QualifiedName, Lifetime } from "./ts-elements";
-import { Collections } from "./extensions";
+import { Element, Module, Class, Method, Property, Visibility, Lifetime } from "tsviz";
+import { Collections } from "./collections-extensions";
 
 export function buildUml(modules: Module[], outputFilename: string, dependenciesOnly: boolean, svgOutput: boolean) {
-    let g: graphviz.Graph = graphviz.digraph("G");
+    const g: graphviz.Graph = graphviz.digraph("G");
 
-    const FontSizeKey = "fontsize";
-    const FontSize = 12;
-    const FontNameKey = "fontname";
-    const FontName = "Verdana";
+    const fontSizeKey = "fontsize";
+    const fontSize = 12;
+    const fontNameKey = "fontname";
+    const fontName = "Verdana";
 
     // set diagram default styles
-    g.set(FontSizeKey, FontSize);
-    g.set(FontNameKey, FontName);
-    g.setEdgeAttribut(FontSizeKey, FontSize);
-    g.setEdgeAttribut(FontNameKey, FontName);
-    g.setNodeAttribut(FontSizeKey, FontSize);
-    g.setNodeAttribut(FontNameKey, FontName);
+    g.set(fontSizeKey, fontSize);
+    g.set(fontNameKey, fontName);
+    g.setEdgeAttribut(fontSizeKey, fontSize);
+    g.setEdgeAttribut(fontNameKey, fontName);
+    g.setNodeAttribut(fontSizeKey, fontSize);
+    g.setNodeAttribut(fontNameKey, fontName);
     g.setNodeAttribut("shape", "record");
 
     modules.forEach(module => {
@@ -26,7 +24,7 @@ export function buildUml(modules: Module[], outputFilename: string, dependencies
     });
 
     if (process.platform === "win32") {
-        let pathVariable = <string> process.env["PATH"];
+        const pathVariable = process.env["PATH"] as string;
         if (pathVariable.indexOf("Graphviz") === -1) {
             console.warn("Could not find Graphviz in PATH.");
         }
@@ -39,8 +37,8 @@ export function buildUml(modules: Module[], outputFilename: string, dependencies
 function buildModule(module: Module, g: graphviz.Graph, path: string, level: number, dependenciesOnly: boolean) {
     const ModulePrefix = "cluster_";
 
-    let moduleId = getGraphNodeId(path, module.name);
-    let cluster = g.addCluster("\"" + ModulePrefix + moduleId + "\"");
+    const moduleId = getGraphNodeId(path, module.name);
+    const cluster = g.addCluster("\"" + ModulePrefix + moduleId + "\"");
 
     cluster.set("label", (module.visibility !== Visibility.Public ? visibilityToString(module.visibility) + " " : "") + module.name);
     cluster.set("style", "filled");
@@ -51,7 +49,7 @@ function buildModule(module: Module, g: graphviz.Graph, path: string, level: num
             g.addEdge(module.name, getGraphNodeId("", d.name));
         });
     } else {
-        let moduleMethods = combineSignatures(module.methods, getMethodSignature);
+        const moduleMethods = combineSignatures(module.methods, getMethodSignature);
         if (moduleMethods) {
             cluster.addNode(
                 getGraphNodeId(path, module.name),
@@ -72,10 +70,10 @@ function buildModule(module: Module, g: graphviz.Graph, path: string, level: num
 }
 
 function buildClass(classDef: Class, g: graphviz.Graph, path: string) {
-    let methodsSignatures = combineSignatures(classDef.methods, getMethodSignature);
-    let propertiesSignatures = combineSignatures(classDef.properties, getPropertySignature);
+    const methodsSignatures = combineSignatures(classDef.methods, getMethodSignature);
+    const propertiesSignatures = combineSignatures(classDef.properties, getPropertySignature);
 
-    let classNode = g.addNode(
+    const classNode = g.addNode(
         getGraphNodeId(path, classDef.name),
         {
             "label": "{" + [ classDef.name, methodsSignatures, propertiesSignatures].filter(e => e.length > 0).join("|") + "}"
@@ -136,6 +134,6 @@ function getName(element: Element) {
 }
 
 function getGraphNodeId(path: string, name: string): string {
-    let result = ((path ? path + "/" : "") + name).replace(/\//g, "|");
+    const result = ((path ? path + "/" : "") + name).replace(/\//g, "|");
     return result;
 }

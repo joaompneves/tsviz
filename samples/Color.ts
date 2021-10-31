@@ -1,7 +1,7 @@
 enum Color {
-	RED,
-	BLUE,
-	GREEN
+    RED,
+    BLUE,
+    GREEN
 }
 
 export = Color;

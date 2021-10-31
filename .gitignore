@@ -1,2 +1,6 @@
 dist
 node_modules
+tsviz-cli/README.md
+tsviz-cli/samples/*
+tsviz/README.md
+tsviz/samples/*

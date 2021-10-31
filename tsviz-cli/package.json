@@ -1,0 +1,52 @@
+{
+    "version": "2.0.0",
+    "license": "MIT",
+    "main": "dist/index.js",
+    "files": [
+        "dist",
+        "samples",
+        "*.md"
+    ],
+    "engines": {
+        "node": ">=14"
+    },
+    "scripts": {
+        "start": "tsdx watch",
+        "build": "tsdx build",
+        "test": "tsdx test",
+        "lint": "tsdx lint",
+        "prepare": "tsdx build",
+        "size": "size-limit",
+        "analyze": "size-limit --why",
+        "prepack": "cpy ../README.md . && cpy ../samples samples"
+    },
+    "peerDependencies": {},
+    "husky": {
+        "hooks": {
+            "pre-commit": "tsdx lint"
+        }
+    },
+    "prettier": {
+        "printWidth": 120,
+        "semi": true,
+        "singleQuote": true,
+        "trailingComma": "es5"
+    },
+    "name": "tsviz-cli",
+    "author": "João Neves",
+    "dependencies": {
+        "graphviz": ">=0.0.8",
+        "tsviz": "^2.0.1"
+    },
+    "devDependencies": {
+        "@types/graphviz": "^0.0.34",
+        "@types/node": "^16.10.2",
+        "cpy-cli": "^3.1.1",
+        "husky": "^7.0.2",
+        "tsdx": "^0.14.1"
+    },
+    "bugs": {
+        "url": "https://github.com/joaompneves/tsviz/issues"
+    },
+    "homepage": "https://github.com/joaompneves/tsviz"
+}

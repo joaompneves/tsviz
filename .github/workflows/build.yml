@@ -13,9 +13,6 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: 'tsviz'
         
     strategy:
       matrix:
@@ -30,6 +27,17 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
         cache-dependency-path: '**/package-lock.json'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+
+    - name: Npm Install tsviz
+      working-directory: 'tsviz'
+      run: npm ci
+    - name: Build tsviz
+      working-directory: 'tsviz'
+      run: npm run build
+
+    - name: Npm Install tsviz-cli
+      working-directory: 'tsviz-cli'
+      run: npm ci
+    - name: Build tsviz-cli
+      working-directory: 'tsviz-cli'
+      run: npm run build

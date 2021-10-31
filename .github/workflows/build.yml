@@ -13,9 +13,10 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-defaults:
+    defaults:
       run:
         working-directory: 'tsviz'
+        
     strategy:
       matrix:
         node-version: [16.x]

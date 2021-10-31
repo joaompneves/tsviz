@@ -4,6 +4,7 @@
     "main": "dist/index.js",
     "files": [
         "dist",
+        "samples",
         "*.md"
     ],
     "engines": {
@@ -17,7 +18,7 @@
         "prepare": "tsdx build",
         "size": "size-limit",
         "analyze": "size-limit --why",
-        "prepack": "cp ../README.md ."
+        "prepack": "cpy ../README.md . && cpy ../samples samples"
     },
     "peerDependencies": {},
     "husky": {
@@ -35,7 +36,7 @@
     "author": "João Neves",
     "dependencies": {
         "graphviz": ">=0.0.8",
-        "tsviz": "../tsviz/"
+        "tsviz": "^2.0.1"
     },
     "devDependencies": {
         "@types/graphviz": "^0.0.34",

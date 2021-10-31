@@ -39,14 +39,14 @@ jobs:
 
     - name: Publish tsviz
       if: github.event.pull_request.merged == false
-      working-directory: 'tsviz'
       uses: JS-DevTools/npm-publish@v1
-        with:
+      with:
+          working-directory: 'tsviz'
           token: ${{ secrets.NPM_TOKEN }}
 
     - name: Publish tsviz-cli
       if: github.event.pull_request.merged == false
-      working-directory: 'tsviz-cli'
       uses: JS-DevTools/npm-publish@v1
-        with:
+      with:
+          working-directory: 'tsviz-cli'
           token: ${{ secrets.NPM_TOKEN }}

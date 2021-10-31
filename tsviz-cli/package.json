@@ -3,7 +3,8 @@
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
-        "dist"
+        "dist",
+        "*.md"
     ],
     "engines": {
         "node": ">=14"
@@ -15,7 +16,8 @@
         "lint": "tsdx lint",
         "prepare": "tsdx build",
         "size": "size-limit",
-        "analyze": "size-limit --why"
+        "analyze": "size-limit --why",
+        "prepack": "cp ../README.md ."
     },
     "peerDependencies": {},
     "husky": {
@@ -38,6 +40,7 @@
     "devDependencies": {
         "@types/graphviz": "^0.0.34",
         "@types/node": "^16.10.2",
+        "cpy-cli": "^3.1.1",
         "husky": "^7.0.2",
         "tsdx": "^0.14.1"
     },

@@ -10,12 +10,6 @@ export enum Lifetime {
     Instance
 }
 
-let ModuleTypeName = "";
-let ClassTypeName = "";
-let MethodTypeName = "";
-let PropertyTypeName = "";
-let ImportedModuleTypeName = "";
-
 export class QualifiedName {
     private nameParts: string[];
     
@@ -29,7 +23,11 @@ export class QualifiedName {
 }
 
 export abstract class Element {
-    constructor(private _name: string, private _parent: Element, private _visibility: Visibility = Visibility.Public, private _lifetime: Lifetime = Lifetime.Instance) { }
+    constructor(private _name: string, private _parent?: Element, private _visibility: Visibility = Visibility.Public, private _lifetime: Lifetime = Lifetime.Instance) { 
+        if (_parent) {
+            _parent.addElement(this);
+        }
+    }
     
     public get name(): string {
         return this._name;
@@ -43,15 +41,15 @@ export abstract class Element {
         return this._lifetime;
     }
     
-    public get parent() : Element {
+    public get parent() : Element | undefined {
         return this._parent;
     }
     
     public addElement(element: Element) {
-        this.getElementCollection(element).push(element);
+        this.getTargetCollection(element).push(element);
     }
     
-    protected getElementCollection(element: Element) : Array<Element> {
+    protected getTargetCollection(element: Element) : Array<Element> {
         throw new Error(typeof element + " not supported in " + typeof this);
     }
 } 
@@ -61,7 +59,7 @@ export class Module extends Element {
     private _modules: Module[] = new Array<Module>();
     private _dependencies: ImportedModule[] = new Array<ImportedModule>();
     private _methods = new Array<Method>();
-    private _path: string;
+    private _path: string = "";
     
     public get classes(): Array<Class> {
         return this._classes;
@@ -87,25 +85,24 @@ export class Module extends Element {
         this._path = value;
     }
     
-    protected getElementCollection(element: Element) : Array<Element> {
-        switch((<any>element.constructor).name) {
-            case ClassTypeName:
-                return this.classes;
-            case ModuleTypeName:
-                return this.modules;
-            case ImportedModuleTypeName:
-                return this.dependencies;
-            case MethodTypeName:
-                return this.methods;
+    protected getTargetCollection(element: Element) : Array<Element> {
+        if (element instanceof Class) {
+            return this.classes;
+        } else if (element instanceof Module) {
+            return this.modules;
+        } else if (element instanceof ImportedModule) {
+            return this.dependencies;
+        } else if (element instanceof Method) {
+            return this.methods;
         }
-        return super.getElementCollection(element);
+        return super.getTargetCollection(element);
     }
 }
 
 export class Class extends Element {
     private _methods = new Array<Method>();
     private _properties : { [name: string ] : Property } = {};
-    private _extends: QualifiedName;
+    private _extends: QualifiedName | null = null;
     
     public get methods(): Array<Method> {
         return this._methods;
@@ -113,23 +110,23 @@ export class Class extends Element {
     
     public get properties(): Array<Property> {
         var result = new Array<Property>();
-        for (let prop of Object.keys(this._properties)) {
+        for (const prop of Object.keys(this._properties)) {
             result.push(this._properties[prop]);
         }
         return result;
     }
     
-    protected getElementCollection(element: Element) : Array<Element> {
+    protected getTargetCollection(element: Element) : Array<Element> {
         if (element instanceof Method) {
             return this.methods;
         }
-        return super.getElementCollection(element);
+        return super.getTargetCollection(element);
     }
     
     public addElement(element: Element) {
         if(element instanceof Property) {
-            let property = <Property> element;
-            let existingProperty = this._properties[property.name];
+            const property = element as Property;
+            const existingProperty = this._properties[property.name];
             if (existingProperty) {
                 existingProperty.hasGetter = existingProperty.hasGetter || property.hasGetter;
                 existingProperty.hasSetter = existingProperty.hasSetter || property.hasSetter;
@@ -138,11 +135,11 @@ export class Class extends Element {
             }
             return;
         }
-        this.getElementCollection(element).push(element);
+        this.getTargetCollection(element).push(element);
     }
     
     public get extends(): QualifiedName {
-        return this._extends;
+        return this._extends!;
     }
     
     public set extends(extendingClass: QualifiedName) {
@@ -159,8 +156,8 @@ export class ImportedModule extends Element {
 }
 
 export class Property extends Element {
-    private _hasGetter: boolean;
-    private _hasSetter: boolean;
+    private _hasGetter = false;
+    private _hasSetter = false;
     
     public get hasGetter(): boolean {
         return this._hasGetter;
@@ -179,12 +176,12 @@ export class Property extends Element {
     }
 }
 
-function typeName(_class: any) {
-    return _class.prototype.constructor.name
-}
+export class Doc extends Element {
+    constructor(parent: Element, private readonly _text: string) {
+        super("", parent);
+    }
 
-ModuleTypeName = typeName(Module);
-ClassTypeName = typeName(Class);
-MethodTypeName = typeName(Method);
-PropertyTypeName = typeName(Property);
-ImportedModuleTypeName = typeName(ImportedModule);
+    public get text(): string {
+        return this._text;
+    }
+}

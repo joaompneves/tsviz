@@ -5,8 +5,8 @@ import { Module } from "./ts-elements";
 import * as analyser from "./ts-analyser"; 
 
 export interface OutputModule {
-	name: string;
-	dependencies: string[];
+    name: string;
+    dependencies: string[];
 }
 
 function getDirectoryFiles(dirPath: string, recursive: boolean) {

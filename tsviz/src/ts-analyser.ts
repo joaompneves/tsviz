@@ -1,7 +1,11 @@
 import * as ts from "typescript";
 import * as path from "path";
-import { Element, Module, Class, Method, ImportedModule, Property, Visibility, QualifiedName, Lifetime, Doc } from "./ts-elements";
+import { Element, Module, Class, Method, ImportedModule, Property, Visibility, QualifiedName, Lifetime, Documentation } from "./ts-elements";
 import { Collections } from "./collections-extensions";
+
+interface IJsDocContainer {
+    jsDoc: ts.JSDoc[];
+}
 
 export function collectInformation(program: ts.Program, sourceFile: ts.SourceFile): Module {
     const typeChecker = program.getTypeChecker();
@@ -69,17 +73,21 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
                 childElement = new Method((functionDeclaration.name as ts.Identifier).text, currentElement, getVisibility(node), getLifetime(node));
                 skipChildren = true;
                 break;
-                
-            case ts.SyntaxKind.JSDocComment:
-                const doc = node as ts.JSDocComment;
-                childElement = new Doc(currentElement, doc.text);
         }
         
+        if (childElement) {
+            const commentText = getDocsText(node);
+            const tags = getDocsTags(node);
+            if (commentText || tags) {
+                new Documentation(childElement, commentText, tags);
+            }
+        }
+
         if (skipChildren) {
             return; // no need to inspect children
         }
-        
-        ts.forEachChild(node, (node) => analyseNode(node, childElement || currentElement));
+
+        node.forEachChild((node) => analyseNode(node, childElement || currentElement));
     }
 
     return module;
@@ -143,4 +151,20 @@ function getLifetime(node: ts.Node) {
 function getFilenameWithoutExtension(file: ts.SourceFile) {
     const filename = file.fileName;
     return filename.substr(0, filename.lastIndexOf(".")); // filename without extension
+}
+
+function getDocsText(node: ts.Node): string {
+    const jsDoc = (node as unknown as IJsDocContainer).jsDoc;
+    if (Array.isArray(jsDoc) && jsDoc.length > 0) {
+        return jsDoc.map(d => d.comment instanceof Array ? d.comment.map(c => c.text) : d.comment).join("\n");
+    }
+    return "";
+}
+
+function getDocsTags(node: ts.Node): string[] {
+    const jsDoc = (node as unknown as IJsDocContainer).jsDoc;
+    if (Array.isArray(jsDoc) && jsDoc.length > 0) {
+        return jsDoc.flatMap(d => d.tags?.map(t => t.tagName.getText()));
+    }
+    return [];
 }

@@ -38,14 +38,12 @@ jobs:
       run: npm ci
 
     - name: Publish tsviz
-      if: github.event.pull_request.merged == true
       uses: JS-DevTools/npm-publish@v1
       with:
           package: 'tsviz/package.json'
           token: ${{ secrets.NPM_TOKEN }}
 
     - name: Publish tsviz-cli
-      if: github.event.pull_request.merged == true
       uses: JS-DevTools/npm-publish@v1
       with:
           package: 'tsviz-cli/package.json'

@@ -23,7 +23,13 @@ export class QualifiedName {
 }
 
 export abstract class Element {
-    constructor(private _name: string, private _parent?: Element, private _visibility: Visibility = Visibility.Public, private _lifetime: Lifetime = Lifetime.Instance) { 
+    private _documentations = new Array<Documentation>();
+
+    constructor(
+        private _name: string, 
+        private _parent?: Element, 
+        private _visibility: Visibility = Visibility.Public, 
+        private _lifetime: Lifetime = Lifetime.Instance) { 
         if (_parent) {
             _parent.addElement(this);
         }
@@ -40,6 +46,10 @@ export abstract class Element {
     public get lifetime() : Lifetime {
         return this._lifetime;
     }
+
+    public get documentations(): Documentation[] {
+        return this._documentations;
+    }
     
     public get parent() : Element | undefined {
         return this._parent;
@@ -49,7 +59,10 @@ export abstract class Element {
         this.getTargetCollection(element).push(element);
     }
     
-    protected getTargetCollection(element: Element) : Array<Element> {
+    protected getTargetCollection(element: Element): Element[] {
+        if (element instanceof Documentation) {
+            return this.documentations;
+        }
         throw new Error(typeof element + " not supported in " + typeof this);
     }
 } 
@@ -61,19 +74,19 @@ export class Module extends Element {
     private _methods = new Array<Method>();
     private _path: string = "";
     
-    public get classes(): Array<Class> {
+    public get classes(): Class[] {
         return this._classes;
     }
     
-    public get modules(): Array<Module> {
+    public get modules(): Module[] {
         return this._modules;
     }
     
-    public get dependencies(): Array<ImportedModule> {
+    public get dependencies(): ImportedModule[] {
         return this._dependencies;
     }
     
-    public get methods(): Array<Method> {
+    public get methods(): Method[] {
         return this._methods;
     }
     
@@ -85,7 +98,7 @@ export class Module extends Element {
         this._path = value;
     }
     
-    protected getTargetCollection(element: Element) : Array<Element> {
+    protected getTargetCollection(element: Element): Element[] {
         if (element instanceof Class) {
             return this.classes;
         } else if (element instanceof Module) {
@@ -104,11 +117,11 @@ export class Class extends Element {
     private _properties : { [name: string ] : Property } = {};
     private _extends: QualifiedName | null = null;
     
-    public get methods(): Array<Method> {
+    public get methods(): Method[] {
         return this._methods;
     }
     
-    public get properties(): Array<Property> {
+    public get properties(): Property[] {
         var result = new Array<Property>();
         for (const prop of Object.keys(this._properties)) {
             result.push(this._properties[prop]);
@@ -116,7 +129,7 @@ export class Class extends Element {
         return result;
     }
     
-    protected getTargetCollection(element: Element) : Array<Element> {
+    protected getTargetCollection(element: Element): Element[] {
         if (element instanceof Method) {
             return this.methods;
         }
@@ -135,7 +148,7 @@ export class Class extends Element {
             }
             return;
         }
-        this.getTargetCollection(element).push(element);
+        super.addElement(element);
     }
     
     public get extends(): QualifiedName {
@@ -176,12 +189,16 @@ export class Property extends Element {
     }
 }
 
-export class Doc extends Element {
-    constructor(parent: Element, private readonly _text: string) {
+export class Documentation extends Element {
+    constructor(parent: Element, private readonly _text: string, private readonly _tags: string[]) {
         super("", parent);
     }
 
     public get text(): string {
         return this._text;
+    }
+
+    public get tags(): string[] {
+        return this._tags;
     }
 }

@@ -1,0 +1,3 @@
+/**
+ * Doc on empty module.
+ */

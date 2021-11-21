@@ -16,6 +16,7 @@
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ],
+            "sourceMaps": true,
             "cwd": "${workspaceFolder}",
             "args": [
                 "samples/",

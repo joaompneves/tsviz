@@ -1,6 +1,9 @@
 
 /**
- * Represents a Shape.
+ * Represents a 
+ * Shape.
+ * @ignore
+ * @test
  */
 export class Shape {
     public draw() {}

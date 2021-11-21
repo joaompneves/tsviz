@@ -75,11 +75,11 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
                 break;
         }
         
-        if (childElement) {
+        if (childElement || currentElement) {
             const commentText = getDocsText(node);
             const tags = getDocsTags(node);
-            if (commentText || tags) {
-                new Documentation(childElement, commentText, tags);
+            if (commentText || tags.length > 0) {
+                new Documentation(childElement || currentElement, commentText, tags);
             }
         }
 
@@ -158,7 +158,7 @@ function getDocsText(node: ts.Node): string {
     if (Array.isArray(jsDoc) && jsDoc.length > 0) {
         return jsDoc.map(d => d.comment instanceof Array ? d.comment.map(c => c.text) : d.comment).join("\n");
     }
-    return "";
+    return null;
 }
 
 function getDocsTags(node: ts.Node): string[] {

@@ -14,7 +14,7 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
     const moduleName  = path.basename(filename); // get module filename without directory
     
     const module = new Module(moduleName);
-    module.path = path.dirname(filename);
+    module.path = sourceFile.fileName;
     
     analyseNode(sourceFile, module);
     

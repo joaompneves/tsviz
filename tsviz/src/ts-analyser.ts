@@ -1,5 +1,5 @@
 import * as ts from "typescript";
-import * as path from "path";
+import { basename } from "path";
 import { Element, Module, Class, Method, ImportedModule, Property, Visibility, QualifiedName, Lifetime, Documentation } from "./ts-elements";
 import { Collections } from "./collections-extensions";
 
@@ -7,11 +7,12 @@ interface IJsDocContainer {
     jsDoc: ts.JSDoc[];
 }
 
-export function collectInformation(program: ts.Program, sourceFile: ts.SourceFile): Module {
+export function collectInformation(sourceFile: ts.SourceFile, program: ts.Program, host: ts.CompilerHost): Module {
     const typeChecker = program.getTypeChecker();
-    
+    const compilerOptions = program.getCompilerOptions();
+
     const filename = getFilenameWithoutExtension(sourceFile);
-    const moduleName  = path.basename(filename); // get module filename without directory
+    const moduleName  = basename(filename); // get module filename without directory
     
     const module = new Module(moduleName);
     module.path = sourceFile.fileName;
@@ -28,17 +29,22 @@ export function collectInformation(program: ts.Program, sourceFile: ts.SourceFil
                 childElement = new Module(moduleDeclaration.name.text, currentElement, getVisibility(node));
                 break;
 
-            case ts.SyntaxKind.ImportEqualsDeclaration:
+            case ts.SyntaxKind.ImportEqualsDeclaration: {
                 const importEqualDeclaration = node as ts.ImportEqualsDeclaration;
-                childElement = new ImportedModule(importEqualDeclaration.name.text, currentElement);
+                const moduleName = importEqualDeclaration.name.text;
+                const moduleLocation = resolveModuleLocation(moduleName, sourceFile.fileName, compilerOptions, host);
+                childElement = new ImportedModule(moduleName, moduleLocation, currentElement);
                 break;
-                
-            case ts.SyntaxKind.ImportDeclaration:
+            }
+             
+            case ts.SyntaxKind.ImportDeclaration: {
                 const importDeclaration = node as ts.ImportDeclaration;
                 const moduleName = (importDeclaration.moduleSpecifier as ts.StringLiteral).text;
-                childElement = new ImportedModule(moduleName, currentElement);
+                const moduleLocation = resolveModuleLocation(moduleName, sourceFile.fileName, compilerOptions, host);
+                childElement = new ImportedModule(moduleName, moduleLocation, currentElement);
                 break;
-                
+            }
+
             case ts.SyntaxKind.ClassDeclaration:
                 const classDeclaration = node as ts.ClassDeclaration;
                 const classDef = new Class(classDeclaration.name!.text, currentElement, getVisibility(node));
@@ -167,4 +173,9 @@ function getDocsTags(node: ts.Node): string[] {
         return jsDoc.flatMap(d => d.tags?.map(t => t.tagName.getText()));
     }
     return [];
+}
+
+function resolveModuleLocation(moduleName: string, sourceFilename: string, compilerOptions: ts.CompilerOptions, host: ts.CompilerHost) {
+    const resolvedModuleName = ts.resolveModuleName(moduleName, sourceFilename, compilerOptions, host);
+    return resolvedModuleName.resolvedModule?.resolvedFileName ?? "";
 }

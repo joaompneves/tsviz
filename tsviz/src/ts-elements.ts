@@ -166,6 +166,13 @@ export class Method extends Element {
 
 export class ImportedModule extends Element {
     
+    constructor(moduleName: string, private readonly _path: string, parent: Element) {
+        super(moduleName, parent);
+    }
+
+    public get path(): string {
+        return this._path;
+    }
 }
 
 export class Property extends Element {

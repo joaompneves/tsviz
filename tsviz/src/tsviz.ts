@@ -1,5 +1,4 @@
-import { readdirSync, lstatSync, existsSync, statSync } from "fs";
-import { join, isAbsolute, dirname } from "path";
+import { dirname, resolve } from "path";
 import * as ts from "typescript";
 import { Module } from "./ts-elements";
 import * as analyser from "./ts-analyser"; 
@@ -9,55 +8,23 @@ export interface OutputModule {
     dependencies: string[];
 }
 
-function getDirectoryFiles(dirPath: string, recursive: boolean) {
-    function innerGetAllFiles(dirPath: string, allFiles: string[]) {
-        const files = readdirSync(dirPath);
-        files.forEach((file) => {
-            const path = join(dirPath, file);
-            if (recursive && statSync(path).isDirectory()) {
-                innerGetAllFiles(path, allFiles);
-            } else {
-                allFiles.push(path);
-            }
-        });
-      
-        return allFiles
-    }
-
-    return innerGetAllFiles(dirPath, []);
-}
-
-function getFiles(targetPath: string, recursive: boolean): string[] {
-    if (!existsSync(targetPath)) {
-        throw new Error("'" + targetPath + "' does not exist");
-    }
-
-    if (lstatSync(targetPath).isDirectory()) {
-        return getDirectoryFiles(targetPath, recursive);
-    }
-    
-    return [targetPath];
-}
-
 export function getModules(targetPath: string, recursive: boolean): Module[] {
-    targetPath = isAbsolute(targetPath) ? targetPath : join(process.cwd(), targetPath);
-    const fileNames = getFiles(targetPath, recursive);
-    const compilerOptions: ts.CompilerOptions = {
-        noEmitOnError: true, 
-        noImplicitAny: true,
-        target: ts.ScriptTarget.ES5, 
-        module: ts.ModuleKind.AMD
-    };
-
+    targetPath = resolve(targetPath);
+    const fileNames = ts.sys.readDirectory(targetPath);
+    
+    const configFileName = ts.findConfigFile(targetPath, ts.sys.fileExists);
+    const configFile = ts.readConfigFile(configFileName, ts.sys.readFile);
+    const config = ts.parseJsonConfigFileContent(configFile.config, ts.sys, dirname(configFileName));
+    
     // analyse sources
     const dtsExtension = ".d.ts";
-    const compilerHost = ts.createCompilerHost(compilerOptions, /*setParentNodes */ true);
-    const program = ts.createProgram(fileNames, compilerOptions, compilerHost);
+    const compilerHost = ts.createCompilerHost(config.options, /*setParentNodes */ true);
+    const program = ts.createProgram(fileNames, config.options, compilerHost);
     const modules = program.getSourceFiles()
-        .filter(f => f.fileName.lastIndexOf(dtsExtension) !== f.fileName.length - dtsExtension.length)
-        .map(sourceFile => analyser.collectInformation(program, sourceFile));
+        .filter(f => !f.fileName.endsWith(dtsExtension))
+        .map(sourceFile => analyser.collectInformation(sourceFile, program, compilerHost));
     
-    console.log("Found " + modules.length + " module(s)");
+    // console.log("Found " + modules.length + " module(s)");
 
     return modules;
 }

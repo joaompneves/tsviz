@@ -21,7 +21,7 @@ export function getModules(targetPath: string, recursive: boolean): Module[] {
     const compilerHost = ts.createCompilerHost(config.options, /*setParentNodes */ true);
     const program = ts.createProgram(fileNames, config.options, compilerHost);
     const modules = program.getSourceFiles()
-        .filter(f => !f.fileName.endsWith(dtsExtension))
+        .filter(f => !f.fileName.endsWith(dtsExtension) && (f.fileName.endsWith(".ts") || f.fileName.endsWith(".tsx")))
         .map(sourceFile => analyser.collectInformation(sourceFile, program, compilerHost));
     
     // console.log("Found " + modules.length + " module(s)");

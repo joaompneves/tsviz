@@ -80,6 +80,9 @@ export function collectInformation(sourceFile: ts.SourceFile, program: ts.Progra
                 skipChildren = true;
                 break;
 
+            case ts.SyntaxKind.SourceFile:
+                break;
+                
             default:
                 // ignore stuff like interfaces, ...
                 return;

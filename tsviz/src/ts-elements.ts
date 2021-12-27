@@ -63,7 +63,7 @@ export abstract class Element {
         if (element instanceof Documentation) {
             return this.documentations;
         }
-        throw new Error(typeof element + " not supported in " + typeof this);
+        throw new Error(element.constructor.name + " not supported in " + this.constructor.name);
     }
 } 
 

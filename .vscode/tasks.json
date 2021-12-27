@@ -23,6 +23,18 @@
             "options": {
                 "cwd": "${workspaceFolder}/tsviz-cli"
               }
+        },
+        {
+            "path": "tsviz",
+            "type": "npm",
+            "script": "build",
+            "group": "build",
+            "problemMatcher": [],
+            "label": "npm: build",
+            "detail": "tsdx build",
+            "options": {
+                "cwd": "${workspaceFolder}/tsviz"
+              }
         }
     ]
 }

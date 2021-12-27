@@ -79,6 +79,10 @@ export function collectInformation(sourceFile: ts.SourceFile, program: ts.Progra
                 childElement = new Method((functionDeclaration.name as ts.Identifier).text, currentElement, getVisibility(node), getLifetime(node));
                 skipChildren = true;
                 break;
+
+            default:
+                // ignore stuff like interfaces, ...
+                return;
         }
         
         if (childElement || currentElement) {

@@ -1,0 +1,7 @@
+{
+    "name": "tsviz-project",
+    "workspaces": [
+      "tsviz",
+      "tsviz-cli"
+    ]
+  }

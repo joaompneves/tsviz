@@ -36,7 +36,7 @@
     "author": "João Neves",
     "dependencies": {
         "graphviz": ">=0.0.8",
-        "tsviz": "../tsviz"
+        "tsviz": ">=2.0.8"
     },
     "devDependencies": {
         "@types/graphviz": "^0.0.34",

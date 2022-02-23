@@ -8,23 +8,36 @@ export interface OutputModule {
     dependencies: string[];
 }
 
+function readConfigOptionsFrom(targetPath: string): ts.CompilerOptions {
+    const configFileName = ts.findConfigFile(targetPath, ts.sys.fileExists);
+    if (configFileName) {
+        const configFile = ts.readConfigFile(configFileName, ts.sys.readFile);
+        return ts.parseJsonConfigFileContent(configFile.config, ts.sys, dirname(configFileName)).options;
+    }
+
+    console.warn(`Tsconfig file not found in "${targetPath}". Using defaults.`);
+
+    const defaultCompilerOptions: ts.CompilerOptions = {
+        noEmitOnError: true, 
+        target: ts.ScriptTarget.ES5, 
+        module: ts.ModuleKind.AMD
+    };
+    return defaultCompilerOptions;
+}
+
 export function getModules(targetPath: string, recursive: boolean): Module[] {
     targetPath = resolve(targetPath);
+
     const fileNames = ts.sys.readDirectory(targetPath);
-    
-    const configFileName = ts.findConfigFile(targetPath, ts.sys.fileExists);
-    const configFile = ts.readConfigFile(configFileName, ts.sys.readFile);
-    const config = ts.parseJsonConfigFileContent(configFile.config, ts.sys, dirname(configFileName));
+    const options = readConfigOptionsFrom(targetPath);
     
     // analyse sources
     const dtsExtension = ".d.ts";
-    const compilerHost = ts.createCompilerHost(config.options, /*setParentNodes */ true);
-    const program = ts.createProgram(fileNames, config.options, compilerHost);
+    const compilerHost = ts.createCompilerHost(options, /*setParentNodes */ true);
+    const program = ts.createProgram(fileNames, options, compilerHost);
     const modules = program.getSourceFiles()
         .filter(f => !f.fileName.endsWith(dtsExtension) && (f.fileName.endsWith(".ts") || f.fileName.endsWith(".tsx")))
         .map(sourceFile => analyser.collectInformation(sourceFile, program, compilerHost));
-    
-    // console.log("Found " + modules.length + " module(s)");
 
     return modules;
 }

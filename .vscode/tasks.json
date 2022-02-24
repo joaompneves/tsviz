@@ -22,7 +22,7 @@
             "detail": "tsdx build",
             "options": {
                 "cwd": "${workspaceFolder}/tsviz-cli"
-              }
+            }
         },
         {
             "path": "tsviz",
@@ -34,7 +34,7 @@
             "detail": "tsdx build",
             "options": {
                 "cwd": "${workspaceFolder}/tsviz"
-              }
+            }
         }
     ]
 }

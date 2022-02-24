@@ -32,4 +32,15 @@ tsviz-cli samples/ diagram.png
 ```
 
 ### Library
-You may also consume tsviz npm library in your project to obtain a digest of modules, classes, methods, etc, of a given typescript project folder.
+You may also consume tsviz npm library in your project to obtain a digest of modules, classes, methods, etc, of a given typescript project.
+
+```bash
+npm install tsviz
+```
+
+```typescript
+import { getModules } from "tsviz";
+
+const modules = getModules("path/where/your/tsconfig/lives");
+...
+```

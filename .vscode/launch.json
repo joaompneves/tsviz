@@ -12,7 +12,7 @@
                 "<node_internals>/**"
             ],
             "preLaunchTask": "${defaultBuildTask}",
-            "program": "${workspaceFolder}/tsviz-cli/dist/index.js",
+            "program": "${workspaceFolder}/tsviz-cli/bin/index.js",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ],

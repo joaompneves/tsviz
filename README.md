@@ -1,6 +1,6 @@
 # tsviz
-![npm](https://img.shields.io/npm/v/tsviz?label=tsviz)
-![npm](https://img.shields.io/npm/v/tsviz-cli?label=tsviz-cli)
+[![npm](https://img.shields.io/npm/v/tsviz?label=tsviz)](https://www.npmjs.com/package/tsviz)
+[![npm](https://img.shields.io/npm/v/tsviz-cli?label=tsviz-cli)](https://www.npmjs.com/package/tsviz-cli)
 
 This simple tool creates a UML diagram from typescript modules.
 

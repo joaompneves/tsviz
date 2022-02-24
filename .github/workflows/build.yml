@@ -29,9 +29,17 @@ jobs:
         cache: 'npm'
         cache-dependency-path: '**/package-lock.json'
 
+    - name: Npm Install
+      working-directory: '.'
+      run: npm ci
+
+    - name: Build tsviz
+      working-directory: 'tsviz'
+      run: npm run build
+
     - name: Build tsviz-cli
       working-directory: 'tsviz-cli'
-      run: npm ci
+      run: npm run build
 
     - name: Publish tsviz
       if: github.ref == 'refs/heads/master'

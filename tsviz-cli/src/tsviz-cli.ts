@@ -10,8 +10,7 @@ function main(args: string[]) {
             "Invalid number of arguments. Usage:\n" + 
             "  <switches> <sources filename/directory> <output.png>\n" +
             "Available switches:\n" +
-            "  -d, dependencies: produces the modules' dependencies diagram\n" + 
-            "  -r, recursive: include files in subdirectories (must be non-cyclic)" +
+            "  -d, dependencies: produces the modules' dependencies diagram\n" +
             "  -svg: output an svg file");
         return;
     }
@@ -20,11 +19,10 @@ function main(args: string[]) {
     const outputFilename = nonSwitches.length > 1 ? nonSwitches[1] : "diagram.png";
 
     const dependenciesOnly = switches.indexOf("-d") >= 0 || switches.indexOf("-dependencies") >= 0; // dependencies or uml?
-    const recursive = switches.indexOf("-r") >= 0 || switches.indexOf("-recursive") >= 0;
     const svgOutput = switches.indexOf("-svg") >= 0;
 
     try {
-        createGraph(targetPath, outputFilename, dependenciesOnly, recursive, svgOutput);
+        createGraph(targetPath, outputFilename, dependenciesOnly, svgOutput);
 
         console.log("Done");
     } catch (e) {
@@ -32,8 +30,8 @@ function main(args: string[]) {
     }
 }
 
-function createGraph(targetPath: string, outputFilename: string, dependenciesOnly: boolean, recursive: boolean, svgOutput: boolean) {
-    const modules = getModules(targetPath, recursive);
+function createGraph(targetPath: string, outputFilename: string, dependenciesOnly: boolean, svgOutput: boolean) {
+    const modules = getModules(targetPath);
     buildUml(modules, outputFilename, dependenciesOnly, svgOutput);
 }
 

@@ -21,7 +21,7 @@ tsviz-cli <switches> <sources filename/directory> <output.png>
 
 Available switches:
   -d, dependencies: produces the modules dependencies diagram
-  -r, recursive: include files in subdirectories (must be non-cyclic)
+  -svg: output an svg file
 
 ```
 

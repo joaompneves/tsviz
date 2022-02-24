@@ -39,8 +39,13 @@ npm install tsviz
 ```
 
 ```typescript
-import { getModules } from "tsviz";
+import { getModules, getModulesDependencies } from "tsviz";
 
-const modules = getModules("path/where/your/tsconfig/lives");
+const tsConfigDir = "path/where/your/tsconfig/lives";
+
+const modules = getModules(tsConfigDir);
+...
+
+const modulesDependencies = getModulesDependencies(tsConfigDir);
 ...
 ```

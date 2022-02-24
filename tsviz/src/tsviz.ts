@@ -25,7 +25,7 @@ function readConfigOptionsFrom(targetPath: string): ts.CompilerOptions {
     return defaultCompilerOptions;
 }
 
-export function getModules(targetPath: string, recursive: boolean): Module[] {
+export function getModules(targetPath: string): Module[] {
     targetPath = resolve(targetPath);
 
     const fileNames = ts.sys.readDirectory(targetPath);
@@ -42,8 +42,8 @@ export function getModules(targetPath: string, recursive: boolean): Module[] {
     return modules;
 }
 
-export function getModulesDependencies(targetPath: string, recursive: boolean): OutputModule[] {
-    const modules = getModules(targetPath, recursive);
+export function getModulesDependencies(targetPath: string): OutputModule[] {
+    const modules = getModules(targetPath);
     const outputModules: OutputModule[] = [];
     modules.sort((a, b) => a.name.localeCompare(b.name)).forEach(module => {
         const uniqueDependencies = new Set<string>();

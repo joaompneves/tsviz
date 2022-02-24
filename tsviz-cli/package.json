@@ -1,5 +1,5 @@
 {
-    "version": "2.0.0",
+    "version": "2.0.1",
     "license": "MIT",
     "main": "dist/index.js",
     "files": [
@@ -15,7 +15,6 @@
         "build": "tsdx build",
         "test": "tsdx test",
         "lint": "tsdx lint",
-        "prepare": "tsdx build",
         "size": "size-limit",
         "analyze": "size-limit --why",
         "prepack": "cpy ../README.md . && cpy ../samples samples"
@@ -36,7 +35,7 @@
     "author": "João Neves",
     "dependencies": {
         "graphviz": ">=0.0.8",
-        "tsviz": "../tsviz"
+        "tsviz": ">=2.0.8"
     },
     "devDependencies": {
         "@types/graphviz": "^0.0.34",

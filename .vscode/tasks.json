@@ -10,6 +10,7 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "tsviz-cli: build",
             "path": "tsviz-cli",
             "type": "npm",
             "script": "build",
@@ -18,23 +19,21 @@
                 "isDefault": true
             },
             "problemMatcher": [],
-            "label": "npm: build",
-            "detail": "tsdx build",
             "options": {
                 "cwd": "${workspaceFolder}/tsviz-cli"
-              }
+            },
+            "dependsOn": ["tsviz: build"]
         },
         {
+            "label": "tsviz: build",
             "path": "tsviz",
             "type": "npm",
             "script": "build",
             "group": "build",
             "problemMatcher": [],
-            "label": "npm: build",
-            "detail": "tsdx build",
             "options": {
                 "cwd": "${workspaceFolder}/tsviz"
-              }
+            }
         }
     ]
 }

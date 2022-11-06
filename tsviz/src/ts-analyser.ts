@@ -76,7 +76,8 @@ export function collectInformation(sourceFile: ts.SourceFile, program: ts.Progra
             case ts.SyntaxKind.MethodDeclaration:
             case ts.SyntaxKind.FunctionDeclaration:
                 const functionDeclaration = node as ts.FunctionDeclaration | ts.MethodDeclaration;
-                childElement = new Method((functionDeclaration.name as ts.Identifier).text, currentElement, getVisibility(node), getLifetime(node));
+                const nameText = functionDeclaration.name ? (functionDeclaration.name as ts.Identifier).text : "";
+                childElement = new Method(nameText, currentElement, getVisibility(node), getLifetime(node));
                 skipChildren = true;
                 break;
 
